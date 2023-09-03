@@ -66,37 +66,3 @@ async def delete_other_messages(message: types.Message):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @dp.message_handler(commands=['choose_category'])
-# async def start(message: types.Message):
-#     await message.delete()
-#     await bot.send_message(message.from_user.id,
-#                            '<b>🔴 Выберите категорию товара:</b>',
-#                            reply_markup=category_ikb,
-#                            parse_mode='HTML')
-
-
-# @dp.message_handler(commands=['make_order'])
-# async def start(message: types.Message):
-#     await message.delete()
-#     await bot.send_message(message.from_user.id, 'Давайте запишем ваши данные, чтобы не спрашивать каждый раз!')
-#     await bot.send_message(message.from_user.id, '<b>🔴 Напишите ваше имя</b>', parse_mode='HTML')
-#     await bot.send_message(message.from_user.id, '<b>🔴 Теперь напишите фамилию</b>', parse_mode='HTML')
-
-
-#reply - ответ на сообщение,
