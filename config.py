@@ -1,11 +1,14 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv('.env')
 
 # Bot
-test_bot_token = ''
+bot_token = os.getenv('BOT_TOKEN')
 
 # Database
-host = '127.0.0.1'
-user = 'postgres'
-password = ''
-dbname = 'dilikat_client_bot_db'
-port = '5432'
-
+host = os.getenv('HOST')
+user = os.getenv('USER')
+password = os.getenv('PASSWORD')
+dbname = os.getenv('DBNAME')
+port = os.getenv('PORT')

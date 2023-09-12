@@ -2,46 +2,53 @@ import psycopg2
 from config import host, user, password, dbname, port
 
 
-def add_user(tg_user_id, tg_username, tg_first_name, tg_last_name):
-    connection = psycopg2.connect(
-        host=host,
-        user=user,
-        password=password,
-        dbname=dbname,
-        port=port,
-    )
+class Database:
 
-    connection.autocommit = True
-
-    with connection.cursor() as cursor:
-        cursor.execute(
-            f"""INSERT INTO users (tg_user_id, tg_username, tg_first_name, tg_last_name) VALUES 
-            ({tg_user_id}, '{tg_username}', '{tg_first_name}', '{tg_last_name}')
-            ON CONFLICT DO NOTHING;"""
+    def __init__(self):
+        self.connection = psycopg2.connect(
+            host=host,
+            user=user,
+            password=password,
+            dbname=dbname,
+            port=port,
         )
 
-    connection.close()
+    def get_user_basket(self, tg_user_id):
+        with self.connection as connection, connection.cursor() as cursor:
+            cursor.execute(
+                f"""SELECT product, quantity FROM basket
+                WHERE is_ordered <> TRUE AND fk_tg_user_id = {tg_user_id}"""
+            )
+            user_basket = cursor.fetchall()
 
+        return user_basket if user_basket else None
 
-def get_user_info(tg_user_id):
-    connection = psycopg2.connect(
-        host=host,
-        user=user,
-        password=password,
-        dbname=dbname,
-        port=port,
-    )
+    def add_user(self, tg_user_id, tg_username, tg_first_name, tg_last_name):
+        with self.connection as connection, connection.cursor() as cursor:
+            cursor.execute(
+                f"""INSERT INTO users VALUES ({tg_user_id}, '{tg_username}', '{tg_first_name}', '{tg_last_name}')
+                ON CONFLICT DO NOTHING"""
+            )
 
-    connection.autocommit = True
+    def get_user_info(self, tg_user_id):
+        with self.connection as connection, connection.cursor() as cursor:
+            cursor.execute(
+                f"""SELECT first_name, last_name, phone_number, delivery_address FROM users
+                    WHERE first_name IS NOT NULL AND tg_user_id = {tg_user_id}"""
+            )
+            user_info = cursor.fetchall()
 
-    with connection.cursor() as cursor:
-        cursor.execute(
-            f"""SELECT first_name, last_name, phone_number, delivery_address FROM users
-            WHERE tg_user_id = {tg_user_id};"""
-        )
-        user_info = cursor.fetchall()[0]
+        return user_info[0] if user_info else None
 
-    connection.close()
-    return user_info
+    def add_basket_product(self, tg_user_id, product_id):
+        with self.connection as connection, connection.cursor() as cursor:
+            cursor.execute(
+                f"""INSERT INTO basket VALUES (DEFAULT, '{product_id}', 1, FALSE, '{tg_user_id}')"""
+            )
 
-
+    def remove_basket_product(self, tg_user_id, product_id):
+        with self.connection as connection, connection.cursor() as cursor:
+            cursor.execute(
+                f"""DELETE FROM basket
+                WHERE product = '{product_id}' AND fk_tg_user_id = {tg_user_id}"""
+            )
