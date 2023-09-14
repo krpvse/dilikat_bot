@@ -20,7 +20,7 @@ def get_user_info_msg(tg_user_id):
     user_info = db.get_user_info(tg_user_id)
     if user_info:
         user_info_msg = f'🔴 Что мы о вас знаем\n\n' \
-                            f'<b>Имя:</b>{user_info[0]} {user_info[1]}\n' \
+                            f'<b>Имя:</b> {user_info[0]} {user_info[1]}\n' \
                             f'<b>Номер телефона:</b> {user_info[2]}\n' \
                             f'<b>Адрес доставки:</b> {user_info[3]}'
     else:
@@ -30,7 +30,7 @@ def get_user_info_msg(tg_user_id):
 
 
 def get_basket_info_msg(tg_user_id):
-    basket_info = db.get_user_basket(tg_user_id=tg_user_id)
+    basket_info = db.get_user_basket(tg_user_id)
     if basket_info:
         basket_info_msg = '🔴 Ваша корзина\n\n'
         for product in basket_info:
@@ -52,3 +52,11 @@ category_products_message = f'🔴 Какой продукт вас интере
                             f'{category_products}\n\n' \
                             f'<i> Нажимайте на "id" для перехода к описанию</i>'
 
+change_first_name_msg = f'🔴 Ваше имя?\n\n' \
+                        f'<i>Напишите в одном сообщении, пожалуйста</i>'
+change_last_name_msg = f'🔴 Ваша фамилия?\n\n' \
+                       f'<i>Напишите в одном сообщении, пожалуйста</i>'
+change_phone_number_msg = f'🔴 Номер телефона?\n\n' \
+                          f'<i>Напишите в одном сообщении, пожалуйста</i>'
+change_delivery_address_msg = f'🔴 Ваш адрес для доставки?\n\n' \
+                              f'<i>Напишите в одном сообщении, пожалуйста</i>'

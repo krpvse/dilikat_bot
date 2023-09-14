@@ -1,13 +1,17 @@
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.dispatcher import FSMContext
 
 from config import bot_token
 from keyboards import main_ikb, equipment_ikb, materials_ikb, product_ikb, user_info_ikb, call_ikb, basket_ikb, \
-    category_products_ikb
+    category_products_ikb, user_info_change_ikb
 from messages import *
 from database import Database
 
+
 bot = Bot(token=bot_token)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot=bot, storage=MemoryStorage())
 db = Database()
 
 
@@ -44,12 +48,12 @@ async def change_section(callback: types.CallbackQuery):
         await callback.message.answer(text=call_section_msg, reply_markup=call_ikb,)
 
     if callback.data == 'Добавить в корзину':
-        db.add_basket_product(callback.from_user.id, 'some_id')
+        db.add_basket_product(callback.from_user.id, 11111, 'Заголовок товара')
         await callback.answer(text=f'Добавили в корзину',
                               show_alert=True)
 
     if callback.data == 'Убрать из корзины':
-        db.remove_basket_product(callback.from_user.id, 'some_id')
+        db.remove_basket_product(callback.from_user.id, 11111, 'Заголовок товара')
         await callback.answer(text=f'Убрали из корзины',
                               show_alert=True)
 
@@ -65,11 +69,14 @@ async def change_section(callback: types.CallbackQuery):
                                       reply_markup=category_products_ikb,
                                       parse_mode='HTML')
 
-    if callback.data == 'Изменить данные пользователя':
-        await callback.answer(text='В разработке', show_alert=True)
-
     if callback.data == 'Назад':
         await callback.answer(text='В разработке', show_alert=True)
+
+    if callback.data == 'Изменить данные пользователя':
+        await ClientStatesGroup.first_name.set()
+        await callback.message.answer(text=change_first_name_msg,
+                                      reply_markup=user_info_change_ikb,
+                                      parse_mode='HTML')
 
 
 @dp.message_handler()
@@ -87,6 +94,69 @@ async def show_product(message: types.Message):
 @dp.message_handler()
 async def delete_other_messages(message: types.Message):
     await message.delete()
+
+
+# ------------------------------------------Change user info
+
+class ClientStatesGroup(StatesGroup):
+    first_name = State()
+    last_name = State()
+    phone_number = State()
+    delivery_address = State()
+
+
+@dp.message_handler(state=ClientStatesGroup.first_name)
+async def save_first_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['first_name'] = message.text
+    await ClientStatesGroup.next()
+    await message.answer(text=change_last_name_msg,
+                         reply_markup=user_info_change_ikb,
+                         parse_mode='HTML')
+
+
+@dp.message_handler(state=ClientStatesGroup.last_name)
+async def save_last_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['last_name'] = message.text
+    await ClientStatesGroup.next()
+    await message.answer(text=change_phone_number_msg,
+                         reply_markup=user_info_change_ikb,
+                         parse_mode='HTML')
+
+
+@dp.message_handler(state=ClientStatesGroup.phone_number)
+async def save_phone_number(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['phone_number'] = message.text
+    await ClientStatesGroup.next()
+    await message.answer(text=change_delivery_address_msg,
+                         reply_markup=user_info_change_ikb,
+                         parse_mode='HTML')
+
+
+@dp.message_handler(state=ClientStatesGroup.delivery_address)
+async def save_delivery_address(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['delivery_address'] = message.text
+    await state.finish()
+    db.change_user_info(message.from_user.id, data['first_name'], data['last_name'],
+                        data['phone_number'], data['delivery_address'])
+    await message.answer(text=get_user_info_msg(message.from_user.id),
+                         reply_markup=user_info_ikb,
+                         parse_mode='HTML')
+
+
+@dp.callback_query_handler(state=ClientStatesGroup.first_name)
+@dp.callback_query_handler(state=ClientStatesGroup.last_name)
+@dp.callback_query_handler(state=ClientStatesGroup.phone_number)
+@dp.callback_query_handler(state=ClientStatesGroup.delivery_address)
+async def change_section(callback: types.CallbackQuery, state: FSMContext):
+    if callback.data == 'Не изменять данные':
+        await state.finish()
+        await callback.message.answer(text=get_user_info_msg(callback.from_user.id),
+                                      reply_markup=user_info_ikb,
+                                      parse_mode='HTML')
 
 
 if __name__ == '__main__':

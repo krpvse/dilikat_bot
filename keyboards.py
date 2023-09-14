@@ -24,6 +24,7 @@ remove_basket_product_btn = InlineKeyboardButton(text='➖📦', callback_data='
 order_btn = InlineKeyboardButton(text='Оформить', callback_data='Оформить заказ')
 
 change_user_info_btn = InlineKeyboardButton(text='Редактировать', callback_data='Изменить данные пользователя')
+cancel_user_info_change_btn = InlineKeyboardButton(text='◀️ Назад', callback_data='Не изменять данные')
 
 
 # Main keyboard
@@ -39,7 +40,8 @@ equipment_ikb = InlineKeyboardMarkup(inline_keyboard=[
 # Materials keyboard
 materials_ikb = InlineKeyboardMarkup(inline_keyboard=[
     [material1_btn, material2_btn],
-    [back_btn, material3_btn]
+    [material3_btn, show_basket_btn],
+    [back_btn]
 ])
 
 # Product keyboard
@@ -51,6 +53,11 @@ product_ikb = InlineKeyboardMarkup(inline_keyboard=[
 # User info keyboard
 user_info_ikb = InlineKeyboardMarkup(inline_keyboard=[
     [back_btn, change_user_info_btn]
+])
+
+#  User info change keyboard
+user_info_change_ikb = InlineKeyboardMarkup(inline_keyboard=[
+    [cancel_user_info_change_btn]
 ])
 
 # Call keyboard
