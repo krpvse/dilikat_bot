@@ -1,8 +1,5 @@
-# from fast_bitrix24 import Bitrix
-#
-# webhook = "https://your_domain.bitrix24.ru/rest/1/your_code/"
-# b = Bitrix(webhook)
 
+# В разработке: жду доступа к bitrix от заказчика. Временно для создания архитектуры ввел шаблоны данных.
 
 
 category_products = '<b>▪️ Товар 1</b> (/id001)\n\n' \
