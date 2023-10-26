@@ -1,11 +1,10 @@
-import psycopg2
 from datetime import datetime
+import psycopg2
 
 from config import host, user, password, dbname, port
 
 
 class Database:
-
     def __init__(self):
         self.connection = psycopg2.connect(
             host=host,
@@ -22,14 +21,14 @@ class Database:
                 WHERE is_ordered = FALSE AND fk_tg_user_id = {tg_user_id}"""
             )
             user_basket = cursor.fetchall()
-
-        return user_basket if user_basket else None
+        return user_basket
 
     def add_user(self, tg_user_id, tg_username, tg_first_name, tg_last_name):
         with self.connection as connection, connection.cursor() as cursor:
             cursor.execute(
                 f"""INSERT INTO customers (tg_user_id, tg_username, tg_first_name, tg_last_name, last_activity)
-                VALUES ({tg_user_id}, '{tg_username}', '{tg_first_name}', '{tg_last_name}', '{datetime.now().strftime('%Y-%m-%d')}')
+                VALUES ({tg_user_id}, '{tg_username}', '{tg_first_name}', '{tg_last_name}', 
+                '{datetime.now().strftime('%Y-%m-%d')}')
                 ON CONFLICT DO NOTHING"""
             )
 
@@ -40,8 +39,7 @@ class Database:
                     WHERE first_name IS NOT NULL AND tg_user_id = {tg_user_id}"""
             )
             user_info = cursor.fetchall()
-
-        return user_info[0] if user_info else None
+        return user_info
 
     def add_basket_product(self, tg_user_id, product_id, product_title):
         with self.connection as connection, connection.cursor() as cursor:
