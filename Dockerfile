@@ -8,6 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY .bot-env ./
 
-COPY . /.
+COPY . ./
 
 CMD python main.py

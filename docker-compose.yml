@@ -1,5 +1,7 @@
 version: '3'
 
+# NOTICE! Before app starting you need to create '.bot-env' file with BOT_TOKEN and ADMIN_ID
+
 services:
   postgres_db:
     image: postgres
@@ -25,8 +27,6 @@ services:
       POSTGRES_PASSWORD: dilikat
       POSTGRES_HOST: postgres_db
       POSTGRES_PORT: 5432
-    volumes:
-      - ./:/bot
 
 volumes:
   postgres_db_data:
