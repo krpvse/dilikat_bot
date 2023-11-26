@@ -1,1 +1,1 @@
-from .user_info_states import UserInfoStatesGroup
+from .states import UserInfoStatesGroup

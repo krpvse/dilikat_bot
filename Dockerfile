@@ -7,7 +7,7 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY .bot-env ./
-
 COPY . ./
 
-CMD python main.py
+CMD python management/database/create_database.py \
+    && python main.py

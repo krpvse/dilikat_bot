@@ -1,12 +1,12 @@
 from aiogram import types, Dispatcher
 
 from loader import bot, dp, db
-from messages.messages import *
+from messages import *
 from keyboards import *
 
 
 async def start(message: types.Message):
-    logo_img = types.InputFile('media/dilikat-logo.png')
+    logo_img = types.InputFile('database/dilikat-logo.png')
     await bot.send_photo(message.from_user.id, photo=logo_img)
     await bot.send_message(message.from_user.id, hello_msg, reply_markup=main_ikb)
 
@@ -16,8 +16,8 @@ async def start(message: types.Message):
 
 async def change_section(callback: types.CallbackQuery):
     if callback.data == 'Главное меню':
-        hello_image = types.InputFile('files/logo.png')
-        await bot.send_photo(callback.from_user.id, photo=hello_image)
+        logo_img = types.InputFile('database/dilikat-logo.png')
+        await bot.send_photo(callback.from_user.id, photo=logo_img)
         await callback.message.answer(text=main_section_msg, reply_markup=main_ikb)
 
     if callback.data == 'Материалы':

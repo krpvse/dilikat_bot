@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
 from loader import dp, db
-from messages.messages import *
+from messages import *
 from keyboards import *
 from states import UserInfoStatesGroup
 

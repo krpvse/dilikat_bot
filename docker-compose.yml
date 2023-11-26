@@ -11,6 +11,8 @@ services:
       POSTGRES_USER: dilikat
       POSTGRES_PASSWORD: dilikat
       POSTGRES_DB: dilikat
+    ports:
+      - '5432:5432'
     volumes:
       - postgres_db_data:/var/lib/postgresql/data/
 
