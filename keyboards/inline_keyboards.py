@@ -8,8 +8,9 @@ main_ikb = InlineKeyboardMarkup(
             InlineKeyboardButton(text='Оборудование', callback_data='Оборудование')
         ],
         [
-            InlineKeyboardButton(text='Мои данные', callback_data='Мои данные'),
-            InlineKeyboardButton(text='Позвонить', callback_data='Позвонить')
+            InlineKeyboardButton(text='👨‍🦰', callback_data='Мои данные'),
+            InlineKeyboardButton(text='📞', callback_data='Позвонить'),
+            InlineKeyboardButton(text='🛒', callback_data='Корзина')
         ]
     ],
     resize_keyboard=True
@@ -41,11 +42,8 @@ materials_ikb = InlineKeyboardMarkup(
             InlineKeyboardButton(text='CAD CAM блоки', callback_data='CAD CAM блоки')
         ],
         [
-            InlineKeyboardButton(text='Фрезы', callback_data='Фрезы'),
-            InlineKeyboardButton(text='Перейти в корзину', callback_data='Корзина')
-        ],
-        [
-            InlineKeyboardButton(text='◀️ Назад', callback_data='Назад')
+            InlineKeyboardButton(text='◀️ Назад', callback_data='Назад'),
+            InlineKeyboardButton(text='Фрезы', callback_data='Фрезы')
         ]
     ],
     resize_keyboard=True
@@ -66,7 +64,7 @@ product_ikb = InlineKeyboardMarkup(
 )
 
 
-user_info_ikb = InlineKeyboardMarkup(
+customer_info_ikb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text='◀️ Назад', callback_data='Назад'),
@@ -77,7 +75,7 @@ user_info_ikb = InlineKeyboardMarkup(
 )
 
 
-user_info_change_ikb = InlineKeyboardMarkup(
+customer_info_change_ikb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text='◀️ Назад', callback_data='Не изменять пользователя')

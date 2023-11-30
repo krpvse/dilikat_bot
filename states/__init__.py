@@ -1,1 +1,1 @@
-from .states import UserInfoStatesGroup
+from .states import CustomerInfoStatesGroup

@@ -1,6 +1,6 @@
 from aiogram import types, Dispatcher
 
-from loader import bot, dp, db
+from loader import bot, db
 from messages import *
 from keyboards import *
 
@@ -12,6 +12,7 @@ async def start(message: types.Message):
 
     db.add_user(message.from_user.id, message.from_user.username,
                 message.from_user.first_name, message.from_user.last_name)
+    await message.delete()
 
 
 async def change_section(callback: types.CallbackQuery):
@@ -29,8 +30,8 @@ async def change_section(callback: types.CallbackQuery):
                                       reply_markup=equipment_ikb)
 
     if callback.data == 'Мои данные':
-        await callback.message.answer(text=get_user_info_msg(callback.from_user.id),
-                                      reply_markup=user_info_ikb)
+        await callback.message.answer(text=get_customer_info_msg(callback.from_user.id),
+                                      reply_markup=customer_info_ikb)
 
     if callback.data == 'Позвонить':
         await callback.message.answer(text=call_section_msg,

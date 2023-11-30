@@ -24,22 +24,22 @@ def create_customer_table(connection):
     with connection as connection, connection.cursor() as cursor:
         cursor.execute(
             f"""CREATE TABLE IF NOT EXISTS customer(
-                id serial PRIMARY KEY,
+                fk_tg_user_id bigint REFERENCES telegram_user(tg_user_id) NOT NULL,
                 first_name varchar(64),
                 last_name varchar(64),
                 phone_number bigint,
                 delivery_address text,
-                fk_tg_user_id bigint REFERENCES telegram_user(tg_user_id) NOT NULL
+                PRIMARY KEY (fk_tg_user_id)
                 )"""
         )
 
 
-def create_product_type_table(connection):
+def create_product_category_table(connection):
     with connection as connection, connection.cursor() as cursor:
         cursor.execute(
-            f"""CREATE TABLE IF NOT EXISTS product_type(
+            f"""CREATE TABLE IF NOT EXISTS product_category(
                 id serial PRIMARY KEY,
-                product_type varchar(64) UNIQUE
+                category_name varchar(64) UNIQUE
                 )"""
         )
 
@@ -54,7 +54,7 @@ def create_product_table(connection):
                 image_url text,
                 price decimal,
                 site_url text,
-                fk_product_type_id smallint REFERENCES product_type(id) NOT NULL
+                fk_category_id smallint REFERENCES product_category(id) NOT NULL
                 )"""
         )
 
@@ -63,19 +63,31 @@ def create_basket_table(connection):
     with connection as connection, connection.cursor() as cursor:
         cursor.execute(
             f"""CREATE TABLE IF NOT EXISTS basket(
-                fk_product_id bigint REFERENCES product(product_id),
+                fk_product_id int REFERENCES product(product_id),
+                quantity smallint DEFAULT 1 CHECK (quantity > 0),
                 fk_tg_user_id bigint REFERENCES telegram_user(tg_user_id),
-                quantity smallint DEFAULT 1,
-                is_ordered boolean DEFAULT FALSE,
                 PRIMARY KEY (fk_product_id, fk_tg_user_id)
                 )"""
         )
 
 
-def add_product_types(connection):
+def create_order_table(connection):
     with connection as connection, connection.cursor() as cursor:
         cursor.execute(
-            f"""INSERT INTO product_type (product_type) VALUES 
+            f"""CREATE TABLE IF NOT EXISTS customer_order(
+                id serial PRIMARY KEY,
+                fk_product_id int REFERENCES product(product_id),
+                quantity smallint DEFAULT 1 CHECK (quantity > 0),
+                fk_tg_user_id bigint REFERENCES telegram_user(tg_user_id),
+                order_date date NOT NULL DEFAULT CURRENT_DATE
+                )"""
+        )
+
+
+def add_product_categories(connection):
+    with connection as connection, connection.cursor() as cursor:
+        cursor.execute(
+            f"""INSERT INTO product_category (category_name) VALUES 
             ('3D принтеры'), ('3D сканеры'),
             ('Фрезерные станки'), ('Печи'),
             ('Фотополимеры'), ('CAD CAM блоки'),
@@ -94,11 +106,10 @@ def add_products_from_csv(connection):
             cursor.execute(
                 f"""INSERT INTO product
                 (product_id, title, description, image_url, 
-                price, site_url, fk_product_type_id)
-                VALUES
-                    ({product[0]}, '{product[1]}', '{product[2]}', '{product[3]}', 
-                    {product[4]}, '{product[5]}', {product[6]})
-                    ON CONFLICT DO NOTHING"""
+                price, site_url, fk_category_id)
+                VALUES ({product[0]}, '{product[1]}', '{product[2]}', '{product[3]}', 
+                        {product[4]}, '{product[5]}', {product[6]})
+                ON CONFLICT DO NOTHING"""
             )
 
 
@@ -113,11 +124,12 @@ def create_database():
 
     create_telegram_user_table(connection)
     create_customer_table(connection)
-    create_product_type_table(connection)
+    create_product_category_table(connection)
     create_product_table(connection)
     create_basket_table(connection)
+    create_order_table(connection)
     
-    add_product_types(connection)
+    add_product_categories(connection)
     add_products_from_csv(connection)
 
 

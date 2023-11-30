@@ -1,6 +1,5 @@
 from aiogram import types, Dispatcher
 
-from loader import dp
 from messages import *
 from keyboards import *
 

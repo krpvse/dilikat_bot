@@ -8,3 +8,5 @@ from database import Database
 bot = Bot(token=bot_token, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot=bot, storage=MemoryStorage())
 db = Database()
+
+catalog = db.get_products()
