@@ -13,6 +13,25 @@ class Database:
             port=port,
         )
 
+    def save_main_message_id(self, tg_user_id, main_message_id):
+        with self.connection as connection, connection.cursor() as cursor:
+            cursor.execute(
+                f"""INSERT INTO bot_management (tg_user_id, main_message_id)
+                VALUES ({tg_user_id}, {main_message_id})
+                ON CONFLICT (tg_user_id) DO 
+                UPDATE SET main_message_id = {main_message_id}
+                WHERE bot_management.tg_user_id = {tg_user_id}"""
+            )
+
+    def get_main_message_id(self, tg_user_id):
+        with self.connection as connection, connection.cursor() as cursor:
+            cursor.execute(
+                f"""SELECT main_message_id FROM bot_management
+                WHERE tg_user_id = {tg_user_id}"""
+            )
+            main_message_id = cursor.fetchone()
+        return main_message_id[0] if main_message_id else None
+
     def get_customer_basket(self, tg_user_id):
         with self.connection as connection, connection.cursor() as cursor:
             cursor.execute(

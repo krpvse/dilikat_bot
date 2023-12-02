@@ -84,6 +84,16 @@ def create_order_table(connection):
         )
 
 
+def create_bot_management_table(connection):
+    with connection as connection, connection.cursor() as cursor:
+        cursor.execute(
+            f"""CREATE TABLE IF NOT EXISTS bot_management(
+                tg_user_id bigint PRIMARY KEY,
+                main_message_id bigint NOT NULL
+                )"""
+        )
+
+
 def add_product_categories(connection):
     with connection as connection, connection.cursor() as cursor:
         cursor.execute(
@@ -128,6 +138,7 @@ def create_database():
     create_product_table(connection)
     create_basket_table(connection)
     create_order_table(connection)
+    create_bot_management_table(connection)
     
     add_product_categories(connection)
     add_products_from_csv(connection)

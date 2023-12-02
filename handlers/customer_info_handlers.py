@@ -1,21 +1,24 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
-from loader import db
+from loader import db, bot
 from messages import *
 from keyboards import *
 from states import CustomerInfoStatesGroup
 
 
 async def change_customer_info(callback: types.CallbackQuery):
-    await callback.message.answer(text=change_first_name_msg, reply_markup=customer_info_change_ikb)
+    await callback.message.edit_text(text=change_first_name_msg, reply_markup=customer_info_change_ikb)
     await CustomerInfoStatesGroup.first_name.set()
 
 
 async def save_first_name(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['first_name'] = message.text
-    await message.answer(text=change_last_name_msg, reply_markup=customer_info_change_ikb)
+
+    main_message_id = db.get_main_message_id(message.from_user.id)
+    await bot.edit_message_text(text=change_last_name_msg, reply_markup=customer_info_change_ikb,
+                                chat_id=message.from_user.id, message_id=main_message_id)
     await message.delete()
     await CustomerInfoStatesGroup.next()
 
@@ -23,7 +26,10 @@ async def save_first_name(message: types.Message, state: FSMContext):
 async def save_last_name(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['last_name'] = message.text
-    await message.answer(text=change_phone_number_msg, reply_markup=customer_info_change_ikb)
+
+    main_message_id = db.get_main_message_id(message.from_user.id)
+    await bot.edit_message_text(text=change_phone_number_msg, reply_markup=customer_info_change_ikb,
+                                chat_id=message.from_user.id, message_id=main_message_id)
     await message.delete()
     await CustomerInfoStatesGroup.next()
 
@@ -31,7 +37,10 @@ async def save_last_name(message: types.Message, state: FSMContext):
 async def save_phone_number(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['phone_number'] = message.text
-    await message.answer(text=change_delivery_address_msg, reply_markup=customer_info_change_ikb)
+
+    main_message_id = db.get_main_message_id(message.from_user.id)
+    await bot.edit_message_text(text=change_delivery_address_msg, reply_markup=customer_info_change_ikb,
+                                chat_id=message.from_user.id, message_id=main_message_id)
     await message.delete()
     await CustomerInfoStatesGroup.next()
 
@@ -39,18 +48,27 @@ async def save_phone_number(message: types.Message, state: FSMContext):
 async def save_delivery_address(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['delivery_address'] = message.text
-    await message.delete()
-    await state.finish()
 
     db.change_customer_info(message.from_user.id, data['first_name'], data['last_name'],
                         data['phone_number'], data['delivery_address'])
-    await message.answer(text=get_customer_info_msg(message.from_user.id), reply_markup=customer_info_ikb)
+
+    main_message_id = db.get_main_message_id(message.from_user.id)
+    await bot.edit_message_text(text=get_customer_info_msg(message.from_user.id),
+                                reply_markup=customer_info_ikb,
+                                chat_id=message.from_user.id,
+                                message_id=main_message_id)
+    await message.delete()
+    await state.finish()
 
 
 async def cancel_user_info_changes(callback: types.CallbackQuery, state: FSMContext):
     await state.finish()
-    await callback.message.answer(text=get_customer_info_msg(callback.from_user.id),
-                                  reply_markup=customer_info_ikb)
+
+    main_message_id = db.get_main_message_id(callback.from_user.id)
+    await bot.edit_message_text(text=get_customer_info_msg(callback.from_user.id),
+                                reply_markup=customer_info_ikb,
+                                chat_id=callback.from_user.id,
+                                message_id=main_message_id)
 
 
 def register_customer_info_handlers(dp: Dispatcher):
