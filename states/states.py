@@ -6,3 +6,8 @@ class CustomerInfoStatesGroup(StatesGroup):
     last_name = State()
     phone_number = State()
     delivery_address = State()
+
+
+class ProductStatesGroup(StatesGroup):
+    category = State()
+    product = State()

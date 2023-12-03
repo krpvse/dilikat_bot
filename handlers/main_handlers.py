@@ -26,6 +26,10 @@ async def start(message: types.Message):
     await message.delete()
 
 
+async def come_back(callback: types.CallbackQuery):
+    await callback.answer(text='В разработке', show_alert=True)
+
+
 async def change_section(callback: types.CallbackQuery):
     if callback.data == 'Главное меню':
         await callback.message.edit_text(text=main_section_msg, reply_markup=main_ikb)
@@ -44,11 +48,23 @@ async def change_section(callback: types.CallbackQuery):
         await callback.message.edit_text(text=call_section_msg, reply_markup=call_ikb)
 
     if callback.data == 'Корзина':
-        await callback.message.edit_text(text=get_basket_info_msg(callback.from_user.id),
-                                         reply_markup=basket_ikb)
+        basket_info_msg = get_basket_info_msg(callback.from_user.id)
+
+        if 'Ваша корзина пуста' in basket_info_msg:
+            keyboard = free_basket_ikb
+        else:
+            keyboard = basket_ikb
+
+        await callback.message.edit_text(text=basket_info_msg, reply_markup=keyboard)
+
+
+async def delete_other_messages(message: types.Message):
+    await message.delete()
 
 
 def register_main_handlers(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start'])
+    dp.register_message_handler(delete_other_messages)
 
-    dp.register_callback_query_handler(change_section)
+    dp.register_callback_query_handler(callback=come_back, text=['Назад'])
+    dp.register_callback_query_handler(callback=change_section)
