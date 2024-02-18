@@ -1,64 +1,51 @@
 from aiogram import types, Dispatcher
 
-from loader import bot, db
+from config import admin_id
+from loader import bot
+from database import DB
 from messages import *
 from keyboards import *
 
 
 async def start(message: types.Message):
-    # delete old main_messages if exists
-    old_main_message_id = db.get_main_message_id(message.from_user.id)
-    if old_main_message_id:
-        await bot.delete_message(message.from_user.id, old_main_message_id-1)
-        await bot.delete_message(message.from_user.id, old_main_message_id)
+    DB.add_user(user_id=message.from_user.id, username=message.from_user.username, full_name=message.from_user.full_name)
 
-    # add user info
-    db.add_user(message.from_user.id, message.from_user.username,
-                message.from_user.first_name, message.from_user.last_name)
+    logo_img = types.InputFile('database/logo.png')
+    await message.answer_photo(photo=logo_img)
+    await message.answer(text='👋 Привет! Это бот для заказов Dilikat\nЗдесь вы можете оставить заявку, а наши менеджеры'
+                         ' оперативно её обработают.\n\n🔴 Что вас интересует?', reply_markup=main_ikb)
 
-    # save new main_message_id
-    db.save_main_message_id(message.from_user.id, message.message_id+2)
-
-    # send start message
-    logo_img = types.InputFile('database/dilikat-logo.png')
-    await bot.send_photo(message.from_user.id, photo=logo_img)
-    await bot.send_message(message.from_user.id, hello_msg, reply_markup=main_ikb)
     await message.delete()
-
-
-async def come_back(callback: types.CallbackQuery):
-    await callback.answer(text='В разработке', show_alert=True)
 
 
 async def change_section(callback: types.CallbackQuery):
     if callback.data == 'Главное меню':
-        await callback.message.edit_text(text=main_section_msg, reply_markup=main_ikb)
+        logo_img = types.InputFile('database/logo.png')
+        await callback.message.answer_photo(photo=logo_img)
+        await callback.message.answer(text='🔴 Вы в главном меню бота. Хотите сделать заказ?', reply_markup=main_ikb)
 
     if callback.data == 'Материалы':
-        await callback.message.edit_text(text=materials_section_msg, reply_markup=materials_ikb)
+        await callback.message.answer(text='🔴 Какие расходные материалы интересуют?', reply_markup=materials_ikb)
 
     if callback.data == 'Оборудование':
-        await callback.message.edit_text(text=equipment_section_msg, reply_markup=equipment_ikb)
+        await callback.message.answer(text='🔴 Какое оборудование интересует?', reply_markup=equipment_ikb)
 
     if callback.data == 'Мои данные':
-        await callback.message.edit_text(text=get_customer_info_msg(callback.from_user.id),
+        customer_info = DB.get_customer(user_id=callback.from_user.id)
+        await callback.message.answer(text=await get_customer_info_msg(customer_info),
                                          reply_markup=customer_info_ikb)
-
     if callback.data == 'Позвонить':
-        await callback.message.edit_text(text=call_section_msg, reply_markup=call_ikb)
+        await callback.message.answer(text='🔴 Наш номер: 88003018733\nНабирайте скорей, мы ждем 😉', reply_markup=call_ikb)
 
     if callback.data == 'Корзина':
-        basket_info_msg = get_basket_info_msg(callback.from_user.id)
-
-        if 'Ваша корзина пуста' in basket_info_msg:
-            keyboard = free_basket_ikb
-        else:
-            keyboard = basket_ikb
-
-        await callback.message.edit_text(text=basket_info_msg, reply_markup=keyboard)
+        basket = DB.get_basket(user_id=callback.from_user.id)
+        print(basket)
+        await callback.message.answer(text=await get_basket_msg(basket), reply_markup=await get_basket_ikb(basket))
 
 
 async def delete_other_messages(message: types.Message):
+    await bot.send_message(chat_id=admin_id, text=f'[ADMIN] Пользователь написал вне сценария: {message.text}\n\n'
+                                                  f'id:{message.from_user.id}///{message.from_user.full_name}')
     await message.delete()
 
 
@@ -66,5 +53,5 @@ def register_main_handlers(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start'])
     dp.register_message_handler(delete_other_messages)
 
-    dp.register_callback_query_handler(callback=come_back, text=['Назад'])
-    dp.register_callback_query_handler(callback=change_section)
+    dp.register_callback_query_handler(callback=change_section, text=['Главное меню', 'Материалы', 'Оборудование',
+                                                                      'Мои данные', 'Позвонить', 'Корзина'])

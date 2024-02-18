@@ -1,4 +1,1 @@
-from .messages import hello_msg, main_section_msg, materials_section_msg, equipment_section_msg, \
-    call_section_msg, get_customer_info_msg, get_basket_info_msg, get_product_msg, \
-    get_category_products_msg, change_first_name_msg, change_last_name_msg, change_phone_number_msg, \
-    change_delivery_address_msg
+from .messages import get_customer_info_msg, get_basket_msg, get_category_products_msg, get_product_msg

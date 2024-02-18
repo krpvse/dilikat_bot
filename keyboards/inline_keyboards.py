@@ -34,7 +34,6 @@ equipment_ikb = InlineKeyboardMarkup(
     resize_keyboard=True
 )
 
-
 materials_ikb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -52,8 +51,11 @@ materials_ikb = InlineKeyboardMarkup(
 customer_info_ikb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text='◀️ Назад', callback_data='Главное меню'),
-            InlineKeyboardButton(text='Редактировать', callback_data='Изменить пользователя')
+            InlineKeyboardButton(text='Редактировать', callback_data='Изменить пользователя'),
+            InlineKeyboardButton(text='В корзину', callback_data='Корзина'),
+        ],
+        [
+            InlineKeyboardButton(text='◀️ В главное меню', callback_data='Главное меню'),
         ]
     ],
     resize_keyboard=True
@@ -79,53 +81,56 @@ call_ikb = InlineKeyboardMarkup(
     resize_keyboard=True
 )
 
-free_basket_ikb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text='◀️ Назад', callback_data='Главное меню'),
-        ]
-    ],
-    resize_keyboard=True
-)
 
-basket_ikb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text='◀️ Назад', callback_data='Главное меню'),
-            InlineKeyboardButton(text='Оформить', callback_data='Оформить заказ')
-        ]
-    ],
-    resize_keyboard=True
-)
-
-material_products_ikb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text='◀️ Назад ', callback_data='Материалы'),
-        ]
-    ],
-    resize_keyboard=True
-)
-
-equipment_products_ikb = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(text='◀️ Назад', callback_data='Оборудование'),
-        ]
-    ],
-    resize_keyboard=True
-)
+async def get_category_products_ikb(category_type):
+    category_products_ikb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text='◀️ Назад', callback_data=category_type),  # example of category_type: "Материалы"
+            ]
+        ],
+        resize_keyboard=True
+    )
+    return category_products_ikb
 
 
-def get_product_ikb(category_name):
+async def get_basket_ikb(basket):
+    if basket:
+        basket_ikb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text='✅ Оформить', callback_data='Оформить заказ'),
+                    InlineKeyboardButton(text='Очистить корзину', callback_data='Очистить корзину')
+                ],
+                [
+                    InlineKeyboardButton(text='◀️ Главное меню', callback_data='Главное меню'),
+                ]
+            ],
+            resize_keyboard=True
+        )
+    else:
+        basket_ikb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text='◀️ Главное меню', callback_data='Главное меню'),
+                ]
+            ],
+            resize_keyboard=True
+        )
+
+    return basket_ikb
+
+
+async def get_product_ikb(category_name, product_id):
     product_ikb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text='➕📦', callback_data='Добавить в корзину'),
-                InlineKeyboardButton(text='➖📦', callback_data='Убрать из корзины')
+                InlineKeyboardButton(text='➕📦', callback_data=f'Добавить в корзину {product_id}'),
+                InlineKeyboardButton(text='➖📦', callback_data=f'Убрать из корзины {product_id}')
             ],
             [
-                InlineKeyboardButton(text='◀️ Назад', callback_data=f'{category_name}')
+                InlineKeyboardButton(text='◀️ Назад', callback_data=category_name),  # example of category_name: "Печи"
+                InlineKeyboardButton(text='🛒 В корзину', callback_data='Корзина')
             ]
         ],
         resize_keyboard=True

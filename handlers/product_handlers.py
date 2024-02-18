@@ -1,52 +1,37 @@
 from aiogram import types, Dispatcher
 
-from loader import bot, catalog, db
+from database import DB
 from messages import *
 from keyboards import *
 
 
-product_ids = [f'id{product[0]}' for product in catalog]
+async def show_category_products(callback: types.CallbackQuery):
+    all_products = DB.get_products()
+    category_name = callback.data
+    category_type = [p[9] for p in all_products if p[8] == category_name][0]
 
-
-async def show_materials_category(callback: types.CallbackQuery):
-    await callback.message.edit_text(text=get_category_products_msg(callback.data),
-                                     reply_markup=material_products_ikb)
-
-
-async def show_equipment_category(callback: types.CallbackQuery):
-    await callback.message.edit_text(text=get_category_products_msg(callback.data),
-                                     reply_markup=equipment_products_ikb)
+    await callback.message.answer(text=await get_category_products_msg(category_name, all_products),
+                                  reply_markup=await get_category_products_ikb(category_type))
 
 
 async def show_product(message: types.Message):
-    # delete old main_messages if exists
-    old_main_message_id = db.get_main_message_id(message.from_user.id)
-    if old_main_message_id:
-        await bot.delete_message(message.from_user.id, old_main_message_id)
-        await bot.delete_message(message.from_user.id, old_main_message_id-1)
+    product_id = int(message.text.replace('/show_id', ''))
+    product = DB.get_product(product_id)
 
-    # save new main_message_id
-    db.save_main_message_id(message.from_user.id, message.message_id+2)
+    product_image_name = product[3]
+    product_category_name = product[8]
 
-    # send product message
-    product_id = int(message.text.replace('/id', ''))
-    category_name = [product[8] for product in catalog if product_id in product][0]
-    product_image_url = [product[3] for product in catalog if product_id in product][0]
-
-    product_image = types.InputFile(f'database/{product_image_url}')
-    await bot.send_photo(message.from_user.id, photo=product_image)
-    await bot.send_message(chat_id=message.from_user.id,
-                           text=get_product_msg(product_id),
-                           reply_markup=get_product_ikb(category_name),
-                           disable_web_page_preview=True)
+    product_image = types.InputFile(f'database/catalog/product_images/{product_image_name}')
+    await message.answer_photo(photo=product_image)
+    await message.answer(text=await get_product_msg(product),
+                         reply_markup=await get_product_ikb(product_category_name, product_id),
+                         disable_web_page_preview=True)
     await message.delete()
 
 
 def register_product_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(callback=show_materials_category,
-                                       text=['CAD CAM блоки', 'Фрезы', 'Фотополимеры'])
+    dp.register_callback_query_handler(callback=show_category_products,
+                                       text=['3D принтеры', '3D сканеры', 'Фрезерные станки', 'Печи',
+                                             'CAD CAM блоки', 'Фрезы', 'Фотополимеры'])
 
-    dp.register_callback_query_handler(callback=show_equipment_category,
-                                       text=['3D принтеры', '3D сканеры', 'Фрезерные станки', 'Печи'])
-
-    dp.register_message_handler(show_product, commands=product_ids)
+    dp.register_message_handler(callback=show_product, text_startswith=['/show_id'])
