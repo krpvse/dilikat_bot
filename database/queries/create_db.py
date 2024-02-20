@@ -1,9 +1,9 @@
-import csv
-
-from sqlalchemy import insert
+from sqlalchemy import select, delete
+from sqlalchemy.dialects.postgresql import insert
 
 from ..database import engine
 from ..models import metadata, product_category_table, product_table, basket_table
+from ..catalog import product_categories, get_products_from_csv
 
 
 class CreateDB:
@@ -12,52 +12,56 @@ class CreateDB:
 
     @staticmethod
     def create_tables():
-        metadata.drop_all(bind=engine, tables=[product_category_table, product_table, basket_table])
         metadata.create_all(bind=engine)
 
     @staticmethod
-    def insert_catalog_data():
+    def update_catalog_data():
+        """Function compares catalog in database and catalog in csv-files. If changes exists then updates"""
+
+        print('Checking new catalog data..')
+
         with engine.connect() as connection:
+            # GET ACTUAL CATALOG PRODUCTS FROM DATABASE
+            query = select(
+                product_table.c.title,
+                product_table.c.description,
+                product_table.c.image_url,
+                product_table.c.price,
+                product_table.c.site_url,
+                product_table.c.category_id,
+            )
+            db_catalog = connection.execute(query).all()
 
-            # ADD PRODUCT CATEGORIES (CATEGORIES IS PERMANENT)
-            product_categories = [
-                    {'id': 1, 'category_name': '3D принтеры', 'category_type': 'Оборудование'},
-                    {'id': 2, 'category_name': '3D сканеры', 'category_type': 'Оборудование'},
-                    {'id': 3, 'category_name': 'Фрезерные станки', 'category_type': 'Оборудование'},
-                    {'id': 4, 'category_name': 'Печи', 'category_type': 'Оборудование'},
-                    {'id': 5, 'category_name': 'Фотополимеры', 'category_type': 'Материалы'},
-                    {'id': 6, 'category_name': 'CAD CAM блоки', 'category_type': 'Материалы'},
-                    {'id': 7, 'category_name': 'Фрезы', 'category_type': 'Материалы'},
-                ]
-            product_category_stmt = insert(product_category_table).values(product_categories)
-            connection.execute(product_category_stmt)
+            # GET NEW CATALOG PRODUCTS FROM CSV-FILES
+            csv_catalog = get_products_from_csv()
 
-            # ADD PRODUCTS (PRODUCTS IS NOT PERMANENT, CAN CHANGE IN CSV FILE)
-            product_files = [
-                '3D принтеры.csv',
-                '3D сканеры.csv',
-                'CAD CAM блоки.csv',
-                'Печи.csv',
-                'Фотополимеры.csv',
-                'Фрезерные станки.csv',
-                'Фрезы.csv',
-            ]
+            # CHECK NEW PRODUCTS, IF IT EXISTS THEN WRITE NEW DATA
+            if db_catalog != csv_catalog:
+                print('It is new products. Updating..')
 
-            for file in product_files:
-                with open(f'database/catalog/{file}', 'r', newline='') as csvfile:
-                    reader = csv.reader(csvfile, delimiter=',')
-                    products = [product for product in reader if product][1:]
+                # ADD PRODUCT CATEGORIES
+                product_category_stmt = insert(product_category_table).values(product_categories)
+                on_conflict_do_nothing_stmt = product_category_stmt.on_conflict_do_nothing(index_elements=['id'])
+                connection.execute(on_conflict_do_nothing_stmt)
 
-                for product in products:
-                    title = product[0].strip()
-                    description = product[1].strip()
-                    image_url = product[2].strip()
-                    price = int(product[3])
-                    site_url = product[4].strip()
-                    category_id = [c['id'] for c in product_categories if c['category_name'] == file.replace('.csv', '')][0]
+                # CLEAR ALL PRODUCTS AND BASKETS
+                old_products_stmt = delete(product_table)
+                connection.execute(old_products_stmt)
+                old_basket_stmt = delete(basket_table)
+                connection.execute(old_basket_stmt)
 
-                    product_stmt = insert(product_table).values(title=title, description=description, image_url=image_url,
-                                                                price=price, site_url=site_url, category_id=category_id)
+                # ADD NEW PRODUCTS
+                for product in csv_catalog:
+                    product_stmt = insert(product_table).values(
+                        title=product[0],
+                        description=product[1],
+                        image_url=product[2],
+                        price=product[3],
+                        site_url=product[4],
+                        category_id=product[5],
+                    )
                     connection.execute(product_stmt)
+            else:
+                print('Update is not required')
 
             connection.commit()

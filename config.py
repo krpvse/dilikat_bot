@@ -19,6 +19,8 @@ password = os.getenv('POSTGRES_PASSWORD')
 dbname = os.getenv('POSTGRES_DB')
 port = os.getenv('POSTGRES_PORT')
 
+catalog_updating_interval = 3600  # in sec
+
 
 # Email
 email_from = os.getenv('EMAIL_FROM')

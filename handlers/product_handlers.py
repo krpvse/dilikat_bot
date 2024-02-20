@@ -21,7 +21,7 @@ async def show_product(message: types.Message):
     product_image_name = product[3]
     product_category_name = product[8]
 
-    product_image = types.InputFile(f'database/catalog/product_images/{product_image_name}')
+    product_image = types.InputFile(f'database/catalog/data/product_images/{product_image_name}')
     await message.answer_photo(photo=product_image)
     await message.answer(text=await get_product_msg(product),
                          reply_markup=await get_product_ikb(product_category_name, product_id),
