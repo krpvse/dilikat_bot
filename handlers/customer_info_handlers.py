@@ -41,10 +41,10 @@ async def save_delivery_address(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['delivery_address'] = message.text
 
-    customer_info = [message.from_user.id, data['first_name'], data['last_name'],
-                     data['phone_number'], data['delivery_address']]
-    DB.change_customer_info(*customer_info)
+    DB.change_customer_info(user_id=message.from_user.id, first_name=data['first_name'], last_name=data['last_name'],
+                            phone_number=data['phone_number'], delivery_address=data['delivery_address'])
 
+    customer_info = DB.get_customer_info(user_id=message.from_user.id)
     await message.answer(text=await get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
     await state.finish()
 
@@ -52,7 +52,7 @@ async def save_delivery_address(message: types.Message, state: FSMContext):
 async def cancel_user_info_changes(callback: types.CallbackQuery, state: FSMContext):
     await state.finish()
 
-    customer_info = DB.get_customer(user_id=callback.from_user.id)
+    customer_info = DB.get_customer_info(user_id=callback.from_user.id)
     await callback.message.answer(text=await get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
 
 

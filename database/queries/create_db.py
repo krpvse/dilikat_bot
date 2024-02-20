@@ -13,7 +13,6 @@ class CreateDB:
     @staticmethod
     def create_tables():
         metadata.drop_all(bind=engine, tables=[product_category_table, product_table, basket_table])
-        # metadata.drop_all(bind=engine)
         metadata.create_all(bind=engine)
 
     @staticmethod

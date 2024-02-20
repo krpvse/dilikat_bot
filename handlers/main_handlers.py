@@ -31,15 +31,15 @@ async def change_section(callback: types.CallbackQuery):
         await callback.message.answer(text='🔴 Какое оборудование интересует?', reply_markup=equipment_ikb)
 
     if callback.data == 'Мои данные':
-        customer_info = DB.get_customer(user_id=callback.from_user.id)
+        customer_info = DB.get_customer_info(user_id=callback.from_user.id)
         await callback.message.answer(text=await get_customer_info_msg(customer_info),
-                                         reply_markup=customer_info_ikb)
+                                      reply_markup=customer_info_ikb)
     if callback.data == 'Позвонить':
-        await callback.message.answer(text='🔴 Наш номер: 88003018733\nНабирайте скорей, мы ждем 😉', reply_markup=call_ikb)
+        await callback.message.answer(text='🔴 Наш номер: 88003018733\nНабирайте скорей, мы ждем 😉',
+                                      reply_markup=call_ikb)
 
     if callback.data == 'Корзина':
         basket = DB.get_basket(user_id=callback.from_user.id)
-        print(basket)
         await callback.message.answer(text=await get_basket_msg(basket), reply_markup=await get_basket_ikb(basket))
 
 

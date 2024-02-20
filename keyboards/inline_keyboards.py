@@ -52,7 +52,7 @@ customer_info_ikb = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text='Редактировать', callback_data='Изменить пользователя'),
-            InlineKeyboardButton(text='В корзину', callback_data='Корзина'),
+            InlineKeyboardButton(text='🛒 В корзину', callback_data='Корзина'),
         ],
         [
             InlineKeyboardButton(text='◀️ В главное меню', callback_data='Главное меню'),
@@ -61,6 +61,18 @@ customer_info_ikb = InlineKeyboardMarkup(
     resize_keyboard=True
 )
 
+check_customer_info_ikb = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text='Редактировать', callback_data='Изменить пользователя'),
+            InlineKeyboardButton(text='✅ Всё верно', callback_data='Отправить заказ'),
+        ],
+        [
+            InlineKeyboardButton(text='◀️ В главное меню', callback_data='Главное меню'),
+        ]
+    ],
+    resize_keyboard=True
+)
 
 customer_info_change_ikb = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -99,8 +111,8 @@ async def get_basket_ikb(basket):
         basket_ikb = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
+                    InlineKeyboardButton(text='Очистить корзину', callback_data='Очистить корзину'),
                     InlineKeyboardButton(text='✅ Оформить', callback_data='Оформить заказ'),
-                    InlineKeyboardButton(text='Очистить корзину', callback_data='Очистить корзину')
                 ],
                 [
                     InlineKeyboardButton(text='◀️ Главное меню', callback_data='Главное меню'),

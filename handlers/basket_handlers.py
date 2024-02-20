@@ -1,8 +1,11 @@
+import asyncio
+
 from aiogram import types, Dispatcher
 
 from database import DB
 from messages import *
 from keyboards import *
+from utils.notifications import send_order_notification
 
 
 async def edit_basket_product_from_products(callback: types.CallbackQuery):
@@ -38,15 +41,30 @@ async def clear_basket(callback: types.CallbackQuery):
 
 
 async def create_order(callback: types.CallbackQuery):
-    basket = DB.get_basket(user_id=callback.from_user.id)
+    customer_info = DB.get_customer_info(user_id=callback.from_user.id)
 
-    # ФУНКЦИОНАЛ ОТПРАВКИ УВЕДОМЛЕНИЙ О НОВОМ ЗАКАЗЕ
+    if callback.data == 'Оформить заказ':
+        # IF CUSTOMER INFO EXISTS THEN CREATE ORDER, ELSE NEED TO WRITE CUSTOMER INFO
+        if customer_info:
+            await callback.answer(text=f'Проверьте, пожалуйста, ваши данные', show_alert=True)
+            await callback.message.answer(text=await get_customer_info_msg(customer_info),
+                                          reply_markup=check_customer_info_ikb)
+        else:
+            await callback.answer('Перед отправкой заявки необходимо заполнить данные покупателя', show_alert=True)
+            await callback.message.answer(text=await get_customer_info_msg(customer_info=None),
+                                          reply_markup=customer_info_ikb)
 
-    await callback.answer(text=f'Заявка отправлена! Скоро с вами свяжется наш менеджер', show_alert=True)
+    elif callback.data == 'Отправить заказ':
+        basket = DB.get_basket(user_id=callback.from_user.id)
 
-    logo_img = types.InputFile('database/logo.png')
-    await callback.message.answer_photo(photo=logo_img)
-    await callback.message.edit_text(text='🔴 Вы в главном меню бота. Хотите сделать заказ?', reply_markup=main_ikb)
+        asyncio.create_task(send_order_notification(order=basket, customer=customer_info, to_telegram=True, to_email=True))
+
+        DB.clear_basket(user_id=callback.from_user.id)
+
+        await callback.answer(text=f'Заявка отправлена! Скоро с вами свяжется наш менеджер', show_alert=True)
+        logo_img = types.InputFile('database/logo.png')
+        await callback.message.answer_photo(photo=logo_img)
+        await callback.message.answer(text='🔴 Вы в главном меню бота. Ещё что-то посмотрите?', reply_markup=main_ikb)
 
 
 def register_basket_handlers(dp: Dispatcher):
@@ -55,4 +73,4 @@ def register_basket_handlers(dp: Dispatcher):
 
     dp.register_message_handler(callback=edit_basket_product_from_basket, text_startswith=['/add_id', '/rem_id'])
     dp.register_callback_query_handler(callback=clear_basket, text=['Очистить корзину'])
-    dp.register_callback_query_handler(callback=create_order, text=['Оформить заказ'])
+    dp.register_callback_query_handler(callback=create_order, text=['Оформить заказ', 'Отправить заказ'])

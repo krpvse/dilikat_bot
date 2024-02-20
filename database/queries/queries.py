@@ -33,10 +33,11 @@ class DB:
             connection.commit()
 
     @staticmethod
-    def get_customer(user_id: int):
-        with engine.connect() as connection:
-            query = select(customer_info_table).where(customer_info_table.c.user_id == user_id)
-            customer_info = connection.execute(query).one_or_none()
+    def get_customer_info(user_id: int):
+        with (engine.connect() as connection):
+            query = select(telegram_user_table, customer_info_table).join_from(telegram_user_table, customer_info_table)
+            filtered_query = query.where(customer_info_table.c.user_id == user_id)
+            customer_info = connection.execute(filtered_query).one_or_none()
             return customer_info
 
     @staticmethod
@@ -61,9 +62,10 @@ class DB:
 
     @staticmethod
     def get_basket(user_id: int):
-        with engine.connect() as connection:
-            query = select(basket_table, product_table).join_from(basket_table, product_table).where(basket_table.c.user_id == user_id)
-            basket = connection.execute(query).fetchall()
+        with (engine.connect() as connection):
+            query = select(basket_table.c.product_id, product_table.c.title, product_table.c.price, basket_table.c.quantity)
+            join_query = query.join_from(basket_table, product_table).where(basket_table.c.user_id == user_id)
+            basket = connection.execute(join_query).fetchall()
             return basket
 
     @staticmethod
