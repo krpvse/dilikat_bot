@@ -49,8 +49,14 @@ async def delete_other_messages(message: types.Message):
     await message.delete()
 
 
+async def get_bot_info(message: types.Message):
+    await message.answer(text=bot_info_msg)
+    await message.delete()
+
+
 def register_main_handlers(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start'])
+    dp.register_message_handler(get_bot_info, commands=['help'])
     dp.register_message_handler(delete_other_messages)
 
     dp.register_callback_query_handler(callback=change_section, text=['Главное меню', 'Материалы', 'Оборудование',
