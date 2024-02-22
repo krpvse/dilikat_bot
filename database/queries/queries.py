@@ -6,9 +6,6 @@ from ..models import telegram_user_table, product_table, product_category_table,
 
 
 class DB:
-    def __init__(self):
-        pass
-
     @staticmethod
     def get_products():
         with engine.connect() as connection:
@@ -41,7 +38,7 @@ class DB:
             return customer_info
 
     @staticmethod
-    def change_customer_info(user_id: int, first_name: str, last_name: str, phone_number: int, delivery_address: str):
+    def change_customer_info(user_id: int, first_name: str, last_name: str, phone_number: str, delivery_address: str):
         with engine.connect() as connection:
             stmt = insert(customer_info_table).values(
                 user_id=user_id,

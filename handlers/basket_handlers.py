@@ -57,14 +57,13 @@ async def create_order(callback: types.CallbackQuery):
     elif callback.data == 'Отправить заказ':
         basket = DB.get_basket(user_id=callback.from_user.id)
 
-        asyncio.create_task(send_order_notification(order=basket, customer=customer_info, to_telegram=True, to_email=True))
-
-        DB.clear_basket(user_id=callback.from_user.id)
-
         await callback.answer(text=f'Заявка отправлена! Скоро с вами свяжется наш менеджер', show_alert=True)
         logo_img = types.InputFile('database/logo.png')
         await callback.message.answer_photo(photo=logo_img)
         await callback.message.answer(text='🔴 Вы в главном меню бота. Ещё что-то посмотрите?', reply_markup=main_ikb)
+        DB.clear_basket(user_id=callback.from_user.id)
+
+        asyncio.create_task(send_order_notification(order=basket, customer=customer_info, to_telegram=True, to_email=True))
 
 
 def register_basket_handlers(dp: Dispatcher):

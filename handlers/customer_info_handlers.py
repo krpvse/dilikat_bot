@@ -5,6 +5,7 @@ from database import DB
 from messages import *
 from keyboards import *
 from states import CustomerInfoStatesGroup
+from utils.validators import validate_name, validate_phone_number, validate_delivery_address
 
 
 async def change_customer_info(callback: types.CallbackQuery):
@@ -14,39 +15,63 @@ async def change_customer_info(callback: types.CallbackQuery):
 
 
 async def save_first_name(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['first_name'] = message.text
-    await message.answer(text=f'🔴 Ваша фамилия?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
-                         reply_markup=customer_info_change_ikb)
-    await CustomerInfoStatesGroup.next()
+    first_name = await validate_name(message.text)
+
+    if first_name:
+        async with state.proxy() as data:
+            data['first_name'] = first_name
+        await message.answer(text=f'🔴 Ваша фамилия?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
+                             reply_markup=customer_info_change_ikb)
+        await CustomerInfoStatesGroup.next()
+    else:
+        await message.answer(text=f'В вашем имени совсем нет букв?\n\n <i>Введите, пожалуйста, имя с буквами</i>',
+                             reply_markup=customer_info_change_ikb)
 
 
 async def save_last_name(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['last_name'] = message.text
-    await message.answer(text=f'🔴 Номер телефона?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
-                         reply_markup=customer_info_change_ikb)
-    await CustomerInfoStatesGroup.next()
+    last_name = await validate_name(message.text)
+
+    if last_name:
+        async with state.proxy() as data:
+            data['last_name'] = last_name
+        await message.answer(text=f'🔴 Номер телефона?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
+                             reply_markup=customer_info_change_ikb)
+        await CustomerInfoStatesGroup.next()
+    else:
+        await message.answer(text=f'В вашей фамилии совсем нет букв?\n\n <i>Введите, пожалуйста, фамилию с буквами</i>',
+                             reply_markup=customer_info_change_ikb)
 
 
 async def save_phone_number(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['phone_number'] = message.text
-    await message.answer(text=f'🔴 Ваш адрес для доставки?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
-                         reply_markup=customer_info_change_ikb)
-    await CustomerInfoStatesGroup.next()
+    phone_number = await validate_phone_number(message.text)
+
+    if phone_number:
+        async with state.proxy() as data:
+            data['phone_number'] = phone_number
+        await message.answer(text=f'🔴 Ваш адрес для доставки?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
+                             reply_markup=customer_info_change_ikb)
+        await CustomerInfoStatesGroup.next()
+    else:
+        await message.answer(text=f'Маловато цифр в номере телефона\n\n <i>Напишите, пожалуйста, номер с большим количеством цифр</i>',
+                             reply_markup=customer_info_change_ikb)
 
 
 async def save_delivery_address(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['delivery_address'] = message.text
+    address = await validate_delivery_address(message.text)
 
-    DB.change_customer_info(user_id=message.from_user.id, first_name=data['first_name'], last_name=data['last_name'],
-                            phone_number=data['phone_number'], delivery_address=data['delivery_address'])
+    if address:
+        async with state.proxy() as data:
+            data['delivery_address'] = message.text
 
-    customer_info = DB.get_customer_info(user_id=message.from_user.id)
-    await message.answer(text=await get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
-    await state.finish()
+        DB.change_customer_info(user_id=message.from_user.id, first_name=data['first_name'], last_name=data['last_name'],
+                                phone_number=data['phone_number'], delivery_address=data['delivery_address'])
+
+        customer_info = DB.get_customer_info(user_id=message.from_user.id)
+        await message.answer(text=await get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
+        await state.finish()
+    else:
+        await message.answer(text=f'Маловато букв в адресе. Должно быть как минимум 5 букв\n\n <i>Напишите подробнее, пожалуйста</i>',
+                             reply_markup=customer_info_change_ikb)
 
 
 async def cancel_user_info_changes(callback: types.CallbackQuery, state: FSMContext):

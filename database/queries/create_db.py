@@ -7,9 +7,6 @@ from ..catalog import product_categories, get_products_from_csv
 
 
 class CreateDB:
-    def __init__(self):
-        pass
-
     @staticmethod
     def create_tables():
         metadata.create_all(bind=engine)
@@ -61,6 +58,7 @@ class CreateDB:
                         category_id=product[5],
                     )
                     connection.execute(product_stmt)
+
             else:
                 print('Update is not required')
 

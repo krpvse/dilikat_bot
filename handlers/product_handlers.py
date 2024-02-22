@@ -10,7 +10,10 @@ async def show_category_products(callback: types.CallbackQuery):
     category_name = callback.data
     category_type = [p[9] for p in all_products if p[8] == category_name][0]
 
-    await callback.message.answer(text=await get_category_products_msg(category_name, all_products),
+    category_products_msgs = await get_category_products_msgs(category_name, all_products)
+    for msg in category_products_msgs:
+        await callback.message.answer(text=msg)
+    await callback.message.answer(text='<i><b>Нажимайте на "id" для перехода к описанию</b></i>',
                                   reply_markup=await get_category_products_ikb(category_type))
 
 
