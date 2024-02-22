@@ -12,9 +12,19 @@ async def edit_basket_product_from_products(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     if 'Добавить в корзину' in callback.data:
         product_id = int(callback.data.replace('Добавить в корзину ', ''))
-        asyncio.create_task(DB.add_to_basket(product_id=product_id, user_id=user_id))
-        await callback.answer(text='Добавили в корзину', show_alert=True)
-    else:
+
+        # CHECK PRODUCT QUANTITY IN BASKET, MUST BE <= 10
+        basket = await DB.get_basket(user_id=user_id)
+        if len(basket) <= 10:
+            asyncio.create_task(DB.add_to_basket(product_id=product_id, user_id=user_id))
+            await callback.answer(text='Добавили в корзину', show_alert=True)
+        else:
+            await callback.answer(
+                text='Много товаров в корзине. Удалите что-то, или звоните нам, чтобы сделать такой большой заказ!',
+                show_alert=True
+            )
+
+    elif 'Убрать из корзины' in callback.data:
         product_id = int(callback.data.replace('Убрать из корзины ', ''))
         asyncio.create_task(DB.remove_from_basket(product_id=product_id, user_id=user_id))
         await callback.answer(text='Убрали из корзины', show_alert=True)
@@ -25,7 +35,7 @@ async def edit_basket_product_from_basket(message: types.Message):
     if 'add_id' in message.text:
         product_id = int(message.text.replace('/add_id', ''))
         await DB.add_to_basket(product_id=product_id, user_id=user_id)
-    else:
+    elif 'rem_id' in message.text:
         product_id = int(message.text.replace('/rem_id', ''))
         await DB.remove_from_basket(product_id=product_id, user_id=user_id)
 

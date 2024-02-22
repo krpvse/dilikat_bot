@@ -10,8 +10,15 @@ async def show_category_products(callback: types.CallbackQuery):
     category_name = callback.data
     category_type = [p[9] for p in all_products if p[8] == category_name][0]
 
-    await callback.message.answer(text=await get_category_products_msg(category_name, all_products),
-                                  reply_markup=await get_category_products_ikb(category_type))
+    # HERE MAY BE A LOT OF MESSAGES, DEPENDS ON PRODUCTS QUANTITY
+    category_products_msgs = await get_category_products_msgs(category_name, all_products)
+
+    for i in range(len(category_products_msgs)):
+        msg = category_products_msgs[i]
+        if msg == category_products_msgs[-1]:
+            await callback.message.answer(text=msg, reply_markup=await get_category_products_ikb(category_type))
+        else:
+            await callback.message.answer(text=msg)
 
 
 async def show_product(message: types.Message):

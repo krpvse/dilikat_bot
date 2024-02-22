@@ -51,17 +51,25 @@ async def get_basket_msg(basket):
     return basket_info_msg
 
 
-async def get_category_products_msg(category_name, products):
+async def get_category_products_msgs(category_name, products):
     category_products = [product for product in products if category_name in product]
 
-    category_products_msg = '🔴 Какой продукт вас интересует?\n\n'
-    for product in category_products:
+    # MAX 20 PRODUCTS IN 1 TELEGRAM MESSAGE
+    category_products_msgs = []
+    msg = '🔴 Какой продукт вас интересует?\n\n'
+    for n, product in enumerate(category_products):
         id = product[0]
         title = product[1]
-        category_products_msg += f'▪️ {title} – /show_id{id}\n\n'
+        msg += f'▪️ {title}\n <i>смотреть</i> ---- /show_id{id}\n\n'
 
-    category_products_msg += '<i><b>Нажимайте на "id" для перехода к описанию</b></i>'
-    return category_products_msg
+        if n % 20 == 0 and n != 0:
+            category_products_msgs.append(msg)
+            msg = ''
+
+    msg += '<i><b>Нажимайте на "id" для перехода к описанию</b></i>'
+    category_products_msgs.append(msg)
+
+    return category_products_msgs
 
 
 async def get_product_msg(product):
