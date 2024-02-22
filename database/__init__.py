@@ -1,1 +1,1 @@
-from .queries import CreateDB, DB
+from .queries import DBManagement, DB

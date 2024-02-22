@@ -22,7 +22,7 @@ product_files = [
 ]
 
 
-def get_products_from_csv() -> list:
+async def get_products_from_csv() -> list:
     catalog_products = []
 
     for file in product_files:

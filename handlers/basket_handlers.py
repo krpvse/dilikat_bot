@@ -12,11 +12,11 @@ async def edit_basket_product_from_products(callback: types.CallbackQuery):
     user_id = callback.from_user.id
     if 'Добавить в корзину' in callback.data:
         product_id = int(callback.data.replace('Добавить в корзину ', ''))
-        DB.add_to_basket(product_id=product_id, user_id=user_id)
+        asyncio.create_task(DB.add_to_basket(product_id=product_id, user_id=user_id))
         await callback.answer(text='Добавили в корзину', show_alert=True)
     else:
         product_id = int(callback.data.replace('Убрать из корзины ', ''))
-        DB.remove_from_basket(product_id=product_id, user_id=user_id)
+        asyncio.create_task(DB.remove_from_basket(product_id=product_id, user_id=user_id))
         await callback.answer(text='Убрали из корзины', show_alert=True)
 
 
@@ -24,24 +24,24 @@ async def edit_basket_product_from_basket(message: types.Message):
     user_id = message.from_user.id
     if 'add_id' in message.text:
         product_id = int(message.text.replace('/add_id', ''))
-        DB.add_to_basket(product_id=product_id, user_id=user_id)
+        await DB.add_to_basket(product_id=product_id, user_id=user_id)
     else:
         product_id = int(message.text.replace('/rem_id', ''))
-        DB.remove_from_basket(product_id=product_id, user_id=user_id)
+        await DB.remove_from_basket(product_id=product_id, user_id=user_id)
 
-    basket = DB.get_basket(user_id=user_id)
+    basket = await DB.get_basket(user_id=user_id)
     await message.answer(text=await get_basket_msg(basket), reply_markup=await get_basket_ikb(basket))
 
 
 async def clear_basket(callback: types.CallbackQuery):
-    DB.clear_basket(user_id=callback.from_user.id)
+    asyncio.create_task(DB.clear_basket(user_id=callback.from_user.id))
     await callback.answer(text=f'Все товары удалены из корзины', show_alert=True)
     await callback.message.answer(text=await get_basket_msg(basket=None),
                                   reply_markup=await get_basket_ikb(basket=None))
 
 
 async def create_order(callback: types.CallbackQuery):
-    customer_info = DB.get_customer_info(user_id=callback.from_user.id)
+    customer_info = await DB.get_customer_info(user_id=callback.from_user.id)
 
     if callback.data == 'Оформить заказ':
         # IF CUSTOMER INFO EXISTS THEN CREATE ORDER, ELSE NEED TO WRITE CUSTOMER INFO
@@ -55,13 +55,13 @@ async def create_order(callback: types.CallbackQuery):
                                           reply_markup=customer_info_ikb)
 
     elif callback.data == 'Отправить заказ':
-        basket = DB.get_basket(user_id=callback.from_user.id)
+        basket = await DB.get_basket(user_id=callback.from_user.id)
 
         await callback.answer(text=f'Заявка отправлена! Скоро с вами свяжется наш менеджер', show_alert=True)
         logo_img = types.InputFile('database/logo.png')
         await callback.message.answer_photo(photo=logo_img)
         await callback.message.answer(text='🔴 Вы в главном меню бота. Ещё что-то посмотрите?', reply_markup=main_ikb)
-        DB.clear_basket(user_id=callback.from_user.id)
+        asyncio.create_task(DB.clear_basket(user_id=callback.from_user.id))
 
         asyncio.create_task(send_order_notification(order=basket, customer=customer_info, to_telegram=True, to_email=True))
 

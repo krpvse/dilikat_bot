@@ -6,20 +6,17 @@ from keyboards import *
 
 
 async def show_category_products(callback: types.CallbackQuery):
-    all_products = DB.get_products()
+    all_products = await DB.get_products()
     category_name = callback.data
     category_type = [p[9] for p in all_products if p[8] == category_name][0]
 
-    category_products_msgs = await get_category_products_msgs(category_name, all_products)
-    for msg in category_products_msgs:
-        await callback.message.answer(text=msg)
-    await callback.message.answer(text='<i><b>Нажимайте на "id" для перехода к описанию</b></i>',
+    await callback.message.answer(text=await get_category_products_msg(category_name, all_products),
                                   reply_markup=await get_category_products_ikb(category_type))
 
 
 async def show_product(message: types.Message):
     product_id = int(message.text.replace('/show_id', ''))
-    product = DB.get_product(product_id)
+    product = await DB.get_product(product_id)
 
     product_image_name = product[3]
     product_category_name = product[8]

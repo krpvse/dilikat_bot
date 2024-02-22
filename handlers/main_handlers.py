@@ -1,3 +1,4 @@
+import asyncio
 from aiogram import types, Dispatcher
 
 from config import admin_id
@@ -8,13 +9,16 @@ from keyboards import *
 
 
 async def start(message: types.Message):
-    DB.add_user(user_id=message.from_user.id, username=message.from_user.username, full_name=message.from_user.full_name)
+    asyncio.create_task(DB.add_user(
+        user_id=message.from_user.id,
+        username=message.from_user.username,
+        full_name=message.from_user.full_name
+    ))
 
     logo_img = types.InputFile('database/logo.png')
     await message.answer_photo(photo=logo_img)
     await message.answer(text='👋 Привет! Это бот для заказов Dilikat\nЗдесь вы можете оставить заявку, а наши менеджеры'
                          ' оперативно её обработают.\n\n🔴 Что вас интересует?', reply_markup=main_ikb)
-
     await message.delete()
 
 
@@ -31,7 +35,7 @@ async def change_section(callback: types.CallbackQuery):
         await callback.message.answer(text='🔴 Какое оборудование интересует?', reply_markup=equipment_ikb)
 
     if callback.data == 'Мои данные':
-        customer_info = DB.get_customer_info(user_id=callback.from_user.id)
+        customer_info = await DB.get_customer_info(user_id=callback.from_user.id)
         await callback.message.answer(text=await get_customer_info_msg(customer_info),
                                       reply_markup=customer_info_ikb)
     if callback.data == 'Позвонить':
@@ -39,7 +43,7 @@ async def change_section(callback: types.CallbackQuery):
                                       reply_markup=call_ikb)
 
     if callback.data == 'Корзина':
-        basket = DB.get_basket(user_id=callback.from_user.id)
+        basket = await DB.get_basket(user_id=callback.from_user.id)
         await callback.message.answer(text=await get_basket_msg(basket), reply_markup=await get_basket_ikb(basket))
 
 

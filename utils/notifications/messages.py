@@ -27,7 +27,7 @@ async def create_email_order_msg(order, customer):
             f'Телефон: {customer[8]}\n'
             f'Адрес: {customer[9]}')
 
-    text += f'Данные заказа:\n\n'
+    text += f'\n\nДанные заказа:\n'
     for product in order:
         text += (f'Товар: {product[1]}\n'
                  f'Цена: {product[2]} руб.\n'

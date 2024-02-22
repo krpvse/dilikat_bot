@@ -1,8 +1,8 @@
 import asyncio
-from .queries import CreateDB
+from .queries import DBManagement
 
 
 async def start_catalog_update_loop(interval: int):
     while True:
-        CreateDB.update_catalog_data()
+        await DBManagement.update_catalog_data()
         await asyncio.sleep(interval)

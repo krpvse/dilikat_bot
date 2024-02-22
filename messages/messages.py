@@ -51,7 +51,7 @@ async def get_basket_msg(basket):
     return basket_info_msg
 
 
-async def get_category_products_msgs(category_name, products):
+async def get_category_products_msg(category_name, products):
     category_products = [product for product in products if category_name in product]
 
     category_products_msg = '🔴 Какой продукт вас интересует?\n\n'
