@@ -29,18 +29,7 @@ customer_info_table = Table(
 # DEPENDS ON CATALOG TABLES, CHANGES WITH CATALOG UPDATING
 
 product_category_table = Table(
-    'productbasket_table = Table(
-    'basket',
-    metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('product_id', ForeignKey('product.id')),
-    Column('quantity', Integer, default=1),
-    Column('user_id', ForeignKey('telegram_user.user_id')),
-    Column('created_at', DateTime, server_default=text("TIMEZONE('utc', now())")),
-    UniqueConstraint('product_id', 'user_id', name='unique_product_id_user_id'),
-    CheckConstraint('quantity > 0', name='check_quantity'),
-)
-_category',
+    'product_category',
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('category_name', String, nullable=False),
