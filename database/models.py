@@ -1,6 +1,7 @@
-from sqlalchemy import text, Table, Column, Integer, BigInteger, String, DateTime, ForeignKey, UniqueConstraint, CheckConstraint
+from sqlalchemy import MetaData, text, Table, Column, Integer, BigInteger, String, DateTime, ForeignKey, UniqueConstraint, CheckConstraint
 
-from .database import metadata
+
+metadata = MetaData()
 
 
 # INDEPENDENT TABLES, DON'T DELETE AND DON'T CHANGE WITH CATALOG UPDATING

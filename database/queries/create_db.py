@@ -1,15 +1,16 @@
 from sqlalchemy import select, delete
 from sqlalchemy.dialects.postgresql import insert
 
-from ..database import engine
+from loader import db_engine
 from ..models import metadata, product_category_table, product_table, basket_table
 from ..catalog import product_categories, get_products_from_csv
+from ..cache.catalog_cache import clear_catalog_cache
 
 
 class DBManagement:
     @staticmethod
     async def create_tables():
-        async with engine.begin() as connection:
+        async with db_engine.begin() as connection:
             await connection.run_sync(metadata.create_all)
 
     @staticmethod
@@ -18,7 +19,7 @@ class DBManagement:
 
         print('Checking new catalog data..')
 
-        async with engine.connect() as connection:
+        async with db_engine.connect() as connection:
             # GET ACTUAL CATALOG PRODUCTS FROM DATABASE
             query = select(
                 product_table.c.title,
@@ -61,6 +62,10 @@ class DBManagement:
                     )
 
                     await connection.execute(product_stmt)
+
+                # CLEAR CACHE
+                await clear_catalog_cache()
+
             else:
                 print('Update is not required')
 
