@@ -1,5 +1,6 @@
 version: '3'
 
+# Before starting docker-compose.yml you must create env-file "app/.env". Just use file "scripts/generate_env.sh" for it
 
 services:
   postgres_db:
