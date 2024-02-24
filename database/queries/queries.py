@@ -3,6 +3,7 @@ import asyncio
 from sqlalchemy import select, update, delete
 from sqlalchemy.dialects.postgresql import insert
 
+from logs import db_logger as logger
 from loader import db_engine
 from ..models import telegram_user_table, product_table, product_category_table, basket_table, customer_info_table
 from ..cache.catalog_cache import save_products_in_cache, get_product_from_cache, get_catalog_from_cache
@@ -11,30 +12,49 @@ from ..cache.catalog_cache import save_products_in_cache, get_product_from_cache
 class DB:
     @staticmethod
     async def get_products():
+        logger.debug('Someone requested products')
         products_from_cache = await get_catalog_from_cache()
 
         if not products_from_cache:
+            logger.debug('Products in cache is not found')
+
             async with db_engine.connect() as connection:
                 query = select(product_table, product_category_table).join_from(product_table, product_category_table)
-                result = await connection.execute(query)
-                products = result.all()
+
+                try:
+                    result = await connection.execute(query)
+                    products = result.all()
+                    logger.debug('Get products from database')
+                except Exception as e:
+                    logger.warning(f'Some problems with database queries: {e}')
+
                 asyncio.create_task(save_products_in_cache(products))
                 return products
         else:
+            logger.debug('Get products from cache')
             return products_from_cache
 
     @staticmethod
     async def get_product(product_id: int):
+        logger.debug(f'Someone requested product {product_id}')
         product_from_cache = await get_product_from_cache(product_id)
 
         if not product_from_cache:
+            logger.debug(f'Product {product_id} in cache is not found')
             async with db_engine.connect() as connection:
                 query = select(product_table, product_category_table).join_from(product_table, product_category_table)
                 filtered_query = query.where(product_table.c.id == product_id)
-                result = await connection.execute(filtered_query)
-                product = result.one()
+
+                try:
+                    result = await connection.execute(filtered_query)
+                    product = result.one()
+                    logger.debug(f'Get product {product_id} from database')
+                except Exception as e:
+                    logger.warning(f'Some problems with database queries: {e}')
+
                 return product
         else:
+            logger.debug(f'Get product {product_id} from cache')
             return product_from_cache
 
     @staticmethod

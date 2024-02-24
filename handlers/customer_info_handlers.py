@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 
+from logs import bot_logger as logger
 from database import DB
 from messages import *
 from keyboards import *
@@ -9,6 +10,7 @@ from utils.validators import validate_name, validate_phone_number, validate_deli
 
 
 async def change_customer_info(callback: types.CallbackQuery):
+    logger.info(f'User {callback.from_user.id} is changing customer info')
     await callback.message.answer(text=f'🔴 Ваше имя?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
                                   reply_markup=customer_info_change_ikb)
     await CustomerInfoStatesGroup.first_name.set()
@@ -20,6 +22,8 @@ async def save_first_name(message: types.Message, state: FSMContext):
     if first_name:
         async with state.proxy() as data:
             data['first_name'] = first_name
+        logger.info(f'User {message.from_user.id} write first name {first_name}')
+
         await message.answer(text=f'🔴 Ваша фамилия?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
                              reply_markup=customer_info_change_ikb)
         await CustomerInfoStatesGroup.next()
@@ -34,6 +38,8 @@ async def save_last_name(message: types.Message, state: FSMContext):
     if last_name:
         async with state.proxy() as data:
             data['last_name'] = last_name
+        logger.info(f'User {message.from_user.id} write last name {last_name}')
+
         await message.answer(text=f'🔴 Номер телефона?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
                              reply_markup=customer_info_change_ikb)
         await CustomerInfoStatesGroup.next()
@@ -48,6 +54,8 @@ async def save_phone_number(message: types.Message, state: FSMContext):
     if phone_number:
         async with state.proxy() as data:
             data['phone_number'] = phone_number
+        logger.info(f'User {message.from_user.id} write phone number {phone_number}')
+
         await message.answer(text=f'🔴 Ваш адрес для доставки?\n\n<i>Напишите в одном сообщении, пожалуйста</i>',
                              reply_markup=customer_info_change_ikb)
         await CustomerInfoStatesGroup.next()
@@ -62,6 +70,7 @@ async def save_delivery_address(message: types.Message, state: FSMContext):
     if address:
         async with state.proxy() as data:
             data['delivery_address'] = message.text
+        logger.info(f'User {message.from_user.id} write address {address}')
 
         await DB.change_customer_info(user_id=message.from_user.id, first_name=data['first_name'], last_name=data['last_name'],
                                 phone_number=data['phone_number'], delivery_address=data['delivery_address'])
@@ -69,12 +78,14 @@ async def save_delivery_address(message: types.Message, state: FSMContext):
         customer_info = await DB.get_customer_info(user_id=message.from_user.id)
         await message.answer(text=await get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
         await state.finish()
+        logger.info(f'User {message.from_user.id} succesfully completed customer info changing')
     else:
         await message.answer(text=f'Маловато букв в адресе. Должно быть как минимум 5 букв\n\n <i>Напишите подробнее, пожалуйста</i>',
                              reply_markup=customer_info_change_ikb)
 
 
 async def cancel_user_info_changes(callback: types.CallbackQuery, state: FSMContext):
+    logger.info(f'User {callback.from_user.id} canceled customer info changing')
     await state.finish()
 
     customer_info = await DB.get_customer_info(user_id=callback.from_user.id)

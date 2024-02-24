@@ -1,3 +1,4 @@
+from logs import validators_logger as logger
 
 
 letters = 'abcdefghijklmnopqrstuvwxyz'
@@ -10,10 +11,10 @@ async def validate_name(name: str):
 
     letters_in_name = [sign for sign in name if sign in all_letters]
     if len(letters_in_name) > 1:
-        print(f'[Validation] Name "{name}" is GOOD')
+        logger.info(f'Name "{name}" is GOOD')
         result = name.capitalize()
     else:
-        print(f'[Validation] Name "{name}" is WRONG')
+        logger.info(f'Name "{name}" is WRONG')
         result = None
 
     return result
@@ -31,10 +32,10 @@ async def validate_phone_number(phone: str):
             pass
 
     if digit_qty >= 5:
-        print(f'[Validation] Phone "{phone}" is GOOD')
+        logger.info(f'Phone "{phone}" is GOOD')
         result = phone
     else:
-        print(f'[Validation] Phone "{phone}" is WRONG')
+        logger.info(f'Phone "{phone}" is WRONG')
         result = None
 
     return result
@@ -45,10 +46,10 @@ async def validate_delivery_address(address: str):
 
     letters_in_name = [sign for sign in address if sign in all_letters]
     if len(letters_in_name) > 5:
-        print(f'[Validation] Address "{address}" is GOOD')
+        logger.info(f'Address "{address}" is GOOD')
         result = address
     else:
-        print(f'[Validation] Address "{address}" is WRONG')
+        logger.info(f'Address "{address}" is WRONG')
         result = None
 
     return result

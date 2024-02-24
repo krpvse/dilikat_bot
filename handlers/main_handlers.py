@@ -1,6 +1,7 @@
 import asyncio
 from aiogram import types, Dispatcher
 
+from logs import bot_logger as logger
 from config import admin_id
 from loader import bot
 from database import DB
@@ -9,6 +10,7 @@ from keyboards import *
 
 
 async def start(message: types.Message):
+    logger.info(f'User {message.from_user.id}-{message.from_user.username}-{message.from_user.full_name} started bot')
     asyncio.create_task(DB.add_user(
         user_id=message.from_user.id,
         username=message.from_user.username,
@@ -48,6 +50,7 @@ async def change_section(callback: types.CallbackQuery):
 
 
 async def delete_other_messages(message: types.Message):
+    logger.info(f'User {message.from_user.id} send unexpected message {message.text}')
     await bot.send_message(chat_id=admin_id, text=f'[ADMIN] Пользователь написал вне сценария: {message.text}\n\n'
                                                   f'id:{message.from_user.id}///{message.from_user.full_name}')
     await message.delete()
