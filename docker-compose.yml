@@ -1,0 +1,44 @@
+version: '3'
+
+
+services:
+  postgres_db:
+    image: postgres
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: dilikat
+      POSTGRES_PASSWORD: dilikat
+      POSTGRES_DB: dilikat
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_db_data:/var/lib/postgresql/data/
+
+  redis_db:
+    image: redis
+    container_name: redis_db
+    restart: always
+    environment:
+      REDIS_HOST: redis_db
+    ports:
+      - '6379:6379'
+
+  bot:
+    build: app/
+    container_name: bot
+    restart: always
+    depends_on:
+      - postgres_db
+      - redis_db
+    environment:
+      POSTGRES_DB: dilikat
+      POSTGRES_USER: dilikat
+      POSTGRES_PASSWORD: dilikat
+      POSTGRES_HOST: postgres_db
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis_db
+      REDIS_PORT: 6379
+
+volumes:
+  postgres_db_data:
