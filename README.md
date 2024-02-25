@@ -3,7 +3,6 @@
 Бот для сбора заявок покупателей с каталогом товаров и корзиной
 
 ## В приложении реализовано
-___________________________________________
 
 - Работа с каталогом товаров через csv-файлы, автоматическое обновление данных в СУБД при наличии изменений в csv-файлах;
 
@@ -35,3 +34,7 @@ sh scripts/generate_env.sh
 ````
 sudo docker-compose up
 ````
+![image](https://github.com/karpov-scripts/dilikat_bot/assets/138283843/4bda5dda-ad76-41ed-b0c5-307279cf5df8)
+![image](https://github.com/karpov-scripts/dilikat_bot/assets/138283843/ce87d292-ab8e-4cb6-94b3-91a38778b3f0)
+![image](https://github.com/karpov-scripts/dilikat_bot/assets/138283843/b143b3f1-7bab-4ea0-be57-39364fb717fb)
+![image](https://github.com/karpov-scripts/dilikat_bot/assets/138283843/088e598f-4c95-46f1-9423-4f13d6a01047)
