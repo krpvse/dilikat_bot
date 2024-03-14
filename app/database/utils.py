@@ -1,7 +1,7 @@
 import asyncio
 
 from logs import db_logger as logger
-from .queries import DBManagement
+from database.queries import DBManagement
 
 
 async def start_catalog_update_loop(interval: int):

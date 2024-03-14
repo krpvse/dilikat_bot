@@ -4,7 +4,7 @@ from email.header import Header
 
 from logs import notification_logger as logger
 from config import email_from, email_from_password, email_to
-from .messages import create_email_order_msg
+from utils.notifications.messages import create_email_order_msg
 
 
 async def create_server_connection():

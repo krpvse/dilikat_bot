@@ -1,7 +1,7 @@
 from logs import notification_logger as logger
 from config import admin_id, order_notification_id
 from loader import bot
-from .messages import create_telegram_order_msgs
+from utils.notifications.messages import create_telegram_order_msgs
 
 
 async def send_startup_notification():

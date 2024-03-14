@@ -3,9 +3,9 @@ from sqlalchemy.dialects.postgresql import insert
 
 from logs import db_logger as logger
 from loader import db_engine
-from ..models import metadata, product_category_table, product_table, basket_table
-from ..catalog import product_categories, get_products_from_csv
-from ..cache.catalog_cache import clear_catalog_cache
+from database.models import metadata, product_category_table, product_table, basket_table
+from database.catalog import product_categories, get_products_from_csv
+from database.cache.catalog_cache import clear_catalog_cache
 
 
 class DBManagement:
