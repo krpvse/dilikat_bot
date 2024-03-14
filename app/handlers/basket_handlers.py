@@ -4,8 +4,8 @@ from aiogram import types, Dispatcher
 
 from logs import bot_logger as logger
 from database import DB
-from messages import *
-from keyboards import *
+from messages import get_basket_msg, get_customer_info_msg
+from keyboards import get_basket_ikb, check_customer_info_ikb, customer_info_ikb, main_ikb
 from utils.notifications import send_order_notification
 
 

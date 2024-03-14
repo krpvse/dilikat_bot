@@ -3,8 +3,8 @@ from aiogram.dispatcher import FSMContext
 
 from logs import bot_logger as logger
 from database import DB
-from messages import *
-from keyboards import *
+from messages import get_customer_info_msg
+from keyboards import customer_info_change_ikb, customer_info_ikb
 from states import CustomerInfoStatesGroup
 from utils.validators import validate_name, validate_phone_number, validate_delivery_address
 

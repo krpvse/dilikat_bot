@@ -5,8 +5,8 @@ from logs import bot_logger as logger
 from config import admin_id
 from loader import bot
 from database import DB
-from messages import *
-from keyboards import *
+from messages import get_customer_info_msg, get_basket_msg, bot_info_msg
+from keyboards import main_ikb, materials_ikb, equipment_ikb, customer_info_ikb, call_ikb, get_basket_ikb
 
 
 async def start(message: types.Message):

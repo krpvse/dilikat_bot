@@ -1,8 +1,8 @@
 from aiogram import types, Dispatcher
 
 from database import DB
-from messages import *
-from keyboards import *
+from messages import get_category_products_msgs, get_product_msg
+from keyboards import get_category_products_ikb, get_product_ikb
 
 
 async def show_category_products(callback: types.CallbackQuery):
