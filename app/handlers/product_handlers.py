@@ -11,12 +11,12 @@ async def show_category_products(callback: types.CallbackQuery):
     category_type = [p[9] for p in all_products if p[8] == category_name][0]
 
     # HERE MAY BE A LOT OF MESSAGES, DEPENDS ON PRODUCTS QUANTITY
-    category_products_msgs = await get_category_products_msgs(category_name, all_products)
+    category_products_msgs = get_category_products_msgs(category_name, all_products)
 
     for i in range(len(category_products_msgs)):
         msg = category_products_msgs[i]
         if msg == category_products_msgs[-1]:
-            await callback.message.answer(text=msg, reply_markup=await get_category_products_ikb(category_type))
+            await callback.message.answer(text=msg, reply_markup=get_category_products_ikb(category_type))
         else:
             await callback.message.answer(text=msg)
 
@@ -30,8 +30,8 @@ async def show_product(message: types.Message):
 
     product_image = types.InputFile(f'database/catalog/data/product_images/{product_image_name}')
     await message.answer_photo(photo=product_image)
-    await message.answer(text=await get_product_msg(product),
-                         reply_markup=await get_product_ikb(product_category_name, product_id),
+    await message.answer(text=get_product_msg(product),
+                         reply_markup=get_product_ikb(product_category_name, product_id),
                          disable_web_page_preview=True)
     await message.delete()
 

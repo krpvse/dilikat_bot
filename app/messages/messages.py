@@ -9,7 +9,7 @@ bot_info_msg = 'ℹ️ Это бот для заказов от компании
                 '4. Проверить, всё ли верно, и отправить заявку!\n\n'
 
 
-async def get_customer_info_msg(customer_info):
+def get_customer_info_msg(customer_info):
     if customer_info:
         customer_info_msg = f'🔴 Ваши данные\n\n' \
                             f'<b>Имя:</b> {customer_info[6]} {customer_info[7]}\n' \
@@ -21,7 +21,7 @@ async def get_customer_info_msg(customer_info):
     return customer_info_msg
 
 
-async def get_basket_msg(basket):
+def get_basket_msg(basket):
     if basket:
         basket_info_msg = '🔴 У вас в корзине\n\n' \
                            '----------------------------------------------\n\n'
@@ -51,7 +51,7 @@ async def get_basket_msg(basket):
     return basket_info_msg
 
 
-async def get_category_products_msgs(category_name, products):
+def get_category_products_msgs(category_name, products):
     category_products = [product for product in products if category_name in product]
 
     # MAX 20 PRODUCTS IN 1 TELEGRAM MESSAGE
@@ -72,7 +72,7 @@ async def get_category_products_msgs(category_name, products):
     return category_products_msgs
 
 
-async def get_product_msg(product):
+def get_product_msg(product):
     title = product[1]
     description = product[2]
     price = product[4]

@@ -76,7 +76,7 @@ async def save_delivery_address(message: types.Message, state: FSMContext):
                                 phone_number=data['phone_number'], delivery_address=data['delivery_address'])
 
         customer_info = await DB.get_customer_info(user_id=message.from_user.id)
-        await message.answer(text=await get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
+        await message.answer(text=get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
         await state.finish()
         logger.info(f'User {message.from_user.id} succesfully completed customer info changing')
     else:
@@ -89,7 +89,7 @@ async def cancel_user_info_changes(callback: types.CallbackQuery, state: FSMCont
     await state.finish()
 
     customer_info = await DB.get_customer_info(user_id=callback.from_user.id)
-    await callback.message.answer(text=await get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
+    await callback.message.answer(text=get_customer_info_msg(customer_info), reply_markup=customer_info_ikb)
 
 
 def register_customer_info_handlers(dp: Dispatcher):

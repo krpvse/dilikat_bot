@@ -94,7 +94,7 @@ call_ikb = InlineKeyboardMarkup(
 )
 
 
-async def get_category_products_ikb(category_type):
+def get_category_products_ikb(category_type):
     category_products_ikb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -106,7 +106,7 @@ async def get_category_products_ikb(category_type):
     return category_products_ikb
 
 
-async def get_basket_ikb(basket):
+def get_basket_ikb(basket):
     if basket:
         basket_ikb = InlineKeyboardMarkup(
             inline_keyboard=[
@@ -133,7 +133,7 @@ async def get_basket_ikb(basket):
     return basket_ikb
 
 
-async def get_product_ikb(category_name, product_id):
+def get_product_ikb(category_name, product_id):
     product_ikb = InlineKeyboardMarkup(
         inline_keyboard=[
             [

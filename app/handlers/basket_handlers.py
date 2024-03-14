@@ -48,14 +48,13 @@ async def edit_basket_product_from_basket(message: types.Message):
         logger.info(f'User {message.from_user.id} remove product id{product_id} from basket')
 
     basket = await DB.get_basket(user_id=user_id)
-    await message.answer(text=await get_basket_msg(basket), reply_markup=await get_basket_ikb(basket))
+    await message.answer(text=get_basket_msg(basket), reply_markup=get_basket_ikb(basket))
 
 
 async def clear_basket(callback: types.CallbackQuery):
     asyncio.create_task(DB.clear_basket(user_id=callback.from_user.id))
     await callback.answer(text=f'Все товары удалены из корзины', show_alert=True)
-    await callback.message.answer(text=await get_basket_msg(basket=None),
-                                  reply_markup=await get_basket_ikb(basket=None))
+    await callback.message.answer(text=get_basket_msg(basket=None), reply_markup=get_basket_ikb(basket=None))
     logger.info(f'User {callback.from_user.id} cleared all basket')
 
 
@@ -66,12 +65,10 @@ async def create_order(callback: types.CallbackQuery):
         # IF CUSTOMER INFO EXISTS THEN CREATE ORDER, ELSE NEED TO WRITE CUSTOMER INFO
         if customer_info:
             await callback.answer(text=f'Проверьте, пожалуйста, ваши данные', show_alert=True)
-            await callback.message.answer(text=await get_customer_info_msg(customer_info),
-                                          reply_markup=check_customer_info_ikb)
+            await callback.message.answer(text=get_customer_info_msg(customer_info), reply_markup=check_customer_info_ikb)
         else:
             await callback.answer('Перед отправкой заявки необходимо заполнить данные покупателя', show_alert=True)
-            await callback.message.answer(text=await get_customer_info_msg(customer_info=None),
-                                          reply_markup=customer_info_ikb)
+            await callback.message.answer(text=get_customer_info_msg(customer_info=None), reply_markup=customer_info_ikb)
 
     elif callback.data == 'Отправить заказ':
         basket = await DB.get_basket(user_id=callback.from_user.id)
