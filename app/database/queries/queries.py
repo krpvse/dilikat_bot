@@ -5,8 +5,8 @@ from sqlalchemy.dialects.postgresql import insert
 
 from logs import db_logger as logger
 from loader import db_engine
-from ..models import telegram_user_table, product_table, product_category_table, basket_table, customer_info_table
-from ..cache.catalog_cache import save_products_in_cache, get_product_from_cache, get_catalog_from_cache
+from database.models import telegram_user_table, product_table, product_category_table, basket_table, customer_info_table
+from database.cache.catalog_cache import save_products_in_cache, get_product_from_cache, get_catalog_from_cache
 
 
 class DB:
