@@ -5,7 +5,7 @@ from loader import dp
 from handlers import register_handlers
 from database import DBManagement
 from database.utils import start_catalog_update_loop
-from utils.notifications import send_startup_notification, send_shutdown_notification
+from utils.notifications import AdminBotNotification
 from settings import settings
 from logs import init_logger, bot_logger as logger
 
@@ -16,12 +16,12 @@ async def on_startup(dp):
     await DBManagement.create_tables()
     asyncio.create_task(start_catalog_update_loop(interval=settings.CATALOG_UPDATING_INTERVAL))
 
-    await send_startup_notification()
+    await AdminBotNotification.send_startup_notification()
 
 
 async def on_shutdown(dp):
     logger.debug('Bot stopped')
-    await send_shutdown_notification()
+    await AdminBotNotification.send_shutdown_notification()
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ from logs import bot_logger as logger
 from database import DB
 from messages import get_basket_msg, get_customer_info_msg
 from keyboards import get_basket_ikb, check_customer_info_ikb, customer_info_ikb, main_ikb
-from utils.notifications import send_order_notification
+from utils.notifications import OrderTelegramNotification, OrderEmailNotification
 
 
 async def edit_basket_product_from_products(callback: types.CallbackQuery):
@@ -81,7 +81,17 @@ async def create_order(callback: types.CallbackQuery):
 
         asyncio.create_task(DB.clear_basket(user_id=callback.from_user.id))
 
-        asyncio.create_task(send_order_notification(order=basket, customer=customer_info, to_telegram=True, to_email=True))
+        order_info = {
+            'telegram_username': customer_info[2],
+            'telegram_name': customer_info[3],
+            'name': f'{customer_info[6]} {customer_info[7]}',
+            'phone': customer_info[8],
+            'address': customer_info[9],
+            'order': basket,
+        }
+        
+        OrderEmailNotification(**order_info).send()
+        await OrderTelegramNotification(**order_info).send()
 
 
 def register_basket_handlers(dp: Dispatcher):
