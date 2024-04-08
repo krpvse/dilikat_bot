@@ -3,13 +3,13 @@ from email.mime.text import MIMEText
 from email.header import Header
 
 from logs import notification_logger as logger
-from config import email_from, email_from_password, email_to
+from settings import settings
 from utils.notifications.messages import create_email_order_msg
 
 
-async def create_server_connection():
-    login = email_from
-    password = email_from_password
+def create_server_connection():
+    login = settings.EMAIL_NOTIFICATION_FROM_LOGIN
+    password = settings.EMAIL_NOTIFICATION_FROM_PASSWORD
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
@@ -25,14 +25,14 @@ async def create_server_connection():
 
 
 async def send_order_notification_to_email(order, customer):
-    subject, text = await create_email_order_msg(order, customer)
+    subject, text = create_email_order_msg(order, customer)
 
     mime = MIMEText(text, 'plain', 'utf-8')
     mime['Subject'] = Header(subject, 'utf-8')
 
     try:
-        server = await create_server_connection()
-        server.sendmail(email_from, email_to, mime.as_string())
+        server = create_server_connection()
+        server.sendmail(settings.EMAIL_NOTIFICATION_FROM_LOGIN, settings.EMAIL_NOTIFICATION_TO, mime.as_string())
         logger.info(f'Order email notification is sent to customer {customer}')
     except Exception as e:
         logger.warning('Some problems with email sending: ', e)

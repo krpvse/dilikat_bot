@@ -2,7 +2,7 @@ import asyncio
 from aiogram import types, Dispatcher
 
 from logs import bot_logger as logger
-from config import admin_id
+from settings import settings
 from loader import bot
 from database import DB
 from messages import get_customer_info_msg, get_basket_msg, bot_info_msg
@@ -51,8 +51,10 @@ async def change_section(callback: types.CallbackQuery):
 
 async def delete_other_messages(message: types.Message):
     logger.info(f'User {message.from_user.id} send unexpected message {message.text}')
-    await bot.send_message(chat_id=admin_id, text=f'[ADMIN] Пользователь написал вне сценария: {message.text}\n\n'
-                                                  f'id:{message.from_user.id}///{message.from_user.full_name}')
+    await bot.send_message(
+        chat_id=settings.TELEGRAM_ADMIN_ID,
+        text=f'[ADMIN] Пользователь написал вне сценария: {message.text}\n\n'
+             f'id:{message.from_user.id}///{message.from_user.full_name}')
     await message.delete()
 
 

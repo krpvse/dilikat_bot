@@ -53,3 +53,4 @@ typing-extensions==4.10.0
     #   sqlalchemy
 yarl==1.9.4
     # via aiohttp
+pydantic-settings

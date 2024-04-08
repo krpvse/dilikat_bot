@@ -1,5 +1,5 @@
 from loader import redis
-from config import catalog_redis_expire_time
+from settings import settings
 
 
 async def get_catalog_from_cache():
@@ -36,6 +36,6 @@ async def save_products_in_cache(products: list):
         await redis.rpush('catalog_product_names', name)
 
         await redis.rpush(name, *product)
-        await redis.expire(name=name, time=catalog_redis_expire_time)
+        await redis.expire(name=name, time=settings.CATALOG_CACHE_EXPIRE_TIME)
 
-    await redis.expire(name='catalog_product_names', time=catalog_redis_expire_time)
+    await redis.expire(name='catalog_product_names', time=settings.CATALOG_CACHE_EXPIRE_TIME)

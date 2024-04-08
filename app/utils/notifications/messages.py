@@ -1,6 +1,6 @@
 
 
-async def create_telegram_order_msgs(order, customer):
+def create_telegram_order_msgs(order, customer):
     msg1 = (f'<b>🎉 У вас новый заказ!</b>\n\n'
             f'Логин в Telegram: {customer[2]}\n'
             f'Имя в Telegram: {customer[3]}\n'
@@ -17,7 +17,7 @@ async def create_telegram_order_msgs(order, customer):
     return msg1, msg2
 
 
-async def create_email_order_msg(order, customer):
+def create_email_order_msg(order, customer):
     subject = f'Новый заказ от {customer[6]} {customer[7]} / Telegram-бот'
 
     text = (f'Новый заказ из Telegram-бота!\n\n'
