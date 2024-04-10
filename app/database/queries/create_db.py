@@ -2,10 +2,10 @@ from sqlalchemy import select, delete
 from sqlalchemy.dialects.postgresql import insert
 
 from logs import db_logger as logger
-from loader import db_engine
+from database.database import db_engine
 from database.models import metadata, product_category_table, product_table, basket_table
 from database.catalog import product_categories, get_products_from_csv
-from database.cache.catalog_cache import clear_catalog_cache
+from database.cache import redis_cache
 
 
 class DBManagement:
@@ -83,7 +83,7 @@ class DBManagement:
                         logger.warning(f'Some problems with database queries: {e}')
 
                 # CLEAR CACHE
-                await clear_catalog_cache()
+                await redis_cache.clear_catalog_data()
 
             else:
                 logger.info('New products is not found. Update is not required')

@@ -84,7 +84,7 @@ class EmailNotification(Notification):
         try:
             server.login(settings.EMAIL_NOTIFICATION_FROM_LOGIN, settings.EMAIL_NOTIFICATION_FROM_PASSWORD)
         except Exception as e:
-            print(f'Some problem with email sending: {e}\nLogin: {settings.EMAIL_NOTIFICATION_FROM_LOGIN}')
+            logger.warning(f'Some problem with email sending: {e}\nLogin: {settings.EMAIL_NOTIFICATION_FROM_LOGIN}')
             return
 
         mime = MIMEText(self.message, 'plain', 'utf-8')

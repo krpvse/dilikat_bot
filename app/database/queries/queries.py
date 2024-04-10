@@ -4,16 +4,16 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.dialects.postgresql import insert
 
 from logs import db_logger as logger
-from loader import db_engine
+from database.database import db_engine
 from database.models import telegram_user_table, product_table, product_category_table, basket_table, customer_info_table
-from database.cache.catalog_cache import save_products_in_cache, get_product_from_cache, get_catalog_from_cache
+from database.cache import redis_cache
 
 
 class DB:
     @staticmethod
     async def get_products():
         logger.debug('Someone requested products')
-        products_from_cache = await get_catalog_from_cache()
+        products_from_cache = await redis_cache.get_catalog()
 
         if not products_from_cache:
             logger.debug('Products in cache is not found')
@@ -28,7 +28,7 @@ class DB:
                 except Exception as e:
                     logger.warning(f'Some problems with database queries: {e}')
 
-                asyncio.create_task(save_products_in_cache(products))
+                asyncio.create_task(redis_cache.update_catalog_data(products))
                 return products
         else:
             logger.debug('Get products from cache')
@@ -37,7 +37,7 @@ class DB:
     @staticmethod
     async def get_product(product_id: int):
         logger.debug(f'Someone requested product {product_id}')
-        product_from_cache = await get_product_from_cache(product_id)
+        product_from_cache = await redis_cache.get_product(product_id)
 
         if not product_from_cache:
             logger.debug(f'Product {product_id} in cache is not found')
