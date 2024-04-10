@@ -23,5 +23,4 @@ def init_logger(name):
 
 bot_logger = logging.getLogger('bot')
 notification_logger = logging.getLogger('bot.notifications')
-validators_logger = logging.getLogger('bot.validators')
 db_logger = logging.getLogger('bot.database')

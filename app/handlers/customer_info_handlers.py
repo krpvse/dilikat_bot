@@ -1,12 +1,13 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
+from pydantic import ValidationError
 
 from logs import bot_logger as logger
 from database import DB
 from messages import get_customer_info_msg
 from keyboards import customer_info_change_ikb, customer_info_ikb
 from states import CustomerInfoStatesGroup
-from utils.validators import validate_name, validate_phone_number, validate_delivery_address
+from database.schemas.input_schemas import CustomerInfoSchema
 
 
 async def change_customer_info(callback: types.CallbackQuery):
@@ -17,9 +18,14 @@ async def change_customer_info(callback: types.CallbackQuery):
 
 
 async def save_first_name(message: types.Message, state: FSMContext):
-    first_name = await validate_name(message.text)
+    first_name = message.text
+    try:
+        validated_first_name = CustomerInfoSchema(first_name=first_name)
+    except ValidationError as e:
+        validated_first_name = None
+        logger.info(f'User {message.from_user.id} write WRONG name "{first_name}"\nDetails: {e}')
 
-    if first_name:
+    if validated_first_name:
         async with state.proxy() as data:
             data['first_name'] = first_name
         logger.info(f'User {message.from_user.id} write first name {first_name}')
@@ -28,14 +34,19 @@ async def save_first_name(message: types.Message, state: FSMContext):
                              reply_markup=customer_info_change_ikb)
         await CustomerInfoStatesGroup.next()
     else:
-        await message.answer(text=f'В вашем имени совсем нет букв?\n\n <i>Введите, пожалуйста, имя с буквами</i>',
+        await message.answer(text=f'В вашем имени совсем нет букв?\n\n<i>Введите, пожалуйста, имя с буквами</i>',
                              reply_markup=customer_info_change_ikb)
 
 
 async def save_last_name(message: types.Message, state: FSMContext):
-    last_name = await validate_name(message.text)
+    last_name = message.text
+    try:
+        validated_last_name = CustomerInfoSchema(last_name=last_name)
+    except ValidationError as e:
+        validated_last_name = None
+        logger.info(f'User {message.from_user.id} write WRONG name "{last_name}"\nDetails: {e}')
 
-    if last_name:
+    if validated_last_name:
         async with state.proxy() as data:
             data['last_name'] = last_name
         logger.info(f'User {message.from_user.id} write last name {last_name}')
@@ -44,14 +55,19 @@ async def save_last_name(message: types.Message, state: FSMContext):
                              reply_markup=customer_info_change_ikb)
         await CustomerInfoStatesGroup.next()
     else:
-        await message.answer(text=f'В вашей фамилии совсем нет букв?\n\n <i>Введите, пожалуйста, фамилию с буквами</i>',
+        await message.answer(text=f'В вашей фамилии совсем нет букв?\n\n<i>Введите, пожалуйста, фамилию с буквами</i>',
                              reply_markup=customer_info_change_ikb)
 
 
 async def save_phone_number(message: types.Message, state: FSMContext):
-    phone_number = await validate_phone_number(message.text)
+    phone_number = message.text
+    try:
+        validated_phone_number = CustomerInfoSchema(phone_number=phone_number)
+    except ValidationError as e:
+        validated_phone_number = None
+        logger.info(f'User {message.from_user.id} write WRONG phone number "{phone_number}"\nDetails: {e}')
 
-    if phone_number:
+    if validated_phone_number:
         async with state.proxy() as data:
             data['phone_number'] = phone_number
         logger.info(f'User {message.from_user.id} write phone number {phone_number}')
@@ -60,14 +76,19 @@ async def save_phone_number(message: types.Message, state: FSMContext):
                              reply_markup=customer_info_change_ikb)
         await CustomerInfoStatesGroup.next()
     else:
-        await message.answer(text=f'Маловато цифр в номере телефона\n\n <i>Напишите, пожалуйста, номер с большим количеством цифр</i>',
+        await message.answer(text=f'Маловато цифр в номере телефона\n\n<i>Напишите, пожалуйста, номер с большим количеством цифр</i>',
                              reply_markup=customer_info_change_ikb)
 
 
 async def save_delivery_address(message: types.Message, state: FSMContext):
-    address = await validate_delivery_address(message.text)
+    address = message.text
+    try:
+        validated_address = CustomerInfoSchema(delivery_address=address)
+    except ValidationError as e:
+        validated_address = None
+        logger.info(f'User {message.from_user.id} write WRONG address "{address}"\nDetails: {e}')
 
-    if address:
+    if validated_address:
         async with state.proxy() as data:
             data['delivery_address'] = message.text
         logger.info(f'User {message.from_user.id} write address {address}')
@@ -80,7 +101,7 @@ async def save_delivery_address(message: types.Message, state: FSMContext):
         await state.finish()
         logger.info(f'User {message.from_user.id} succesfully completed customer info changing')
     else:
-        await message.answer(text=f'Маловато букв в адресе. Должно быть как минимум 5 букв\n\n <i>Напишите подробнее, пожалуйста</i>',
+        await message.answer(text=f'Маловато букв в адресе. Должно быть как минимум 5 букв\n\n<i>Напишите подробнее, пожалуйста</i>',
                              reply_markup=customer_info_change_ikb)
 
 
